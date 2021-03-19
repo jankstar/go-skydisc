@@ -4,7 +4,7 @@ Optimization of operations over resources and time
 The following elements are managed
 
 Service area
-describes e.g. a never release, temporal allocation of certain resources
+describes e.g. a branch office, temporal allocation of certain resources
 * Designation
 * Address, geo-coordinates for starting point
 * Capacities per qualification
