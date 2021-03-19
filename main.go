@@ -7,7 +7,10 @@ import (
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/jankstar/go-skydisc/lib"
+	"github.com/jankstar/go-skydisc/order"
 	"github.com/joho/godotenv"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 var (
@@ -31,6 +34,13 @@ func main() {
 		host = ip
 		fmt.Println("IP address set:", ip)
 	}
+
+	loDB, err := gorm.Open(sqlite.Open("test.db"), lib.GsDBConfig)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	order.InitOrderDB(loDB)
 
 	gin.SetMode(gin.DebugMode) //gin.ReleaseMode)
 	oRouter := gin.New()

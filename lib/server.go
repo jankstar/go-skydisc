@@ -1,8 +1,23 @@
 package lib
 
+//Library for central processing and server functions
+
 import (
 	"errors"
 	"net"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+)
+
+var (
+	GsDBConfig = &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true, // use singular table name, table for `User` would be `user` with this option enabled
+		},
+		Logger: logger.Default.LogMode(logger.Silent),
+	}
 )
 
 //externalIP determines the external IP address
