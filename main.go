@@ -40,7 +40,7 @@ func main() {
 	oRouter.Delims("<(", ")>")
 	oRouter.StaticFile("favicon.ico", "favicon.ico")
 	oRouter.StaticFile("lookinlogo.png", "lookinlogo.png")
-	oRouter.Use(static.Serve("/tmp", static.LocalFile(tmpDir, false)))
+	//oRouter.Use(static.Serve("/tmp", static.LocalFile(tmpDir, false)))
 	oRouter.Use(static.Serve("/vendor", static.LocalFile("./client/vendor", false)))
 	oRouter.Use(static.Serve("/icon", static.LocalFile("./client", false)))
 	oRouter.LoadHTMLGlob("client/*.html")
