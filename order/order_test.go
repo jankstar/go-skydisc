@@ -9,7 +9,7 @@ import (
 )
 
 func TestInitDBOrder(t *testing.T) {
-	loDB, _ := gorm.Open(sqlite.Open("test.db"), lib.GsDBConfig)
+	loDB, _ := gorm.Open(sqlite.Open("../"+lib.GfDBName), lib.GsDBConfig)
 	type args struct {
 		iDB *gorm.DB
 	}
@@ -19,7 +19,7 @@ func TestInitDBOrder(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "Test DB init",
+			name:    "Define Test DB 'test.db' in /tmp ",
 			args:    args{loDB},
 			wantErr: false,
 		},

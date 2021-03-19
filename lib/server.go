@@ -4,14 +4,21 @@ package lib
 
 import (
 	"errors"
+	"fmt"
 	"net"
+	"os"
 
+	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 )
 
 var (
+	GfHost = "127.0.0.1"
+	GfPort = ":8000"
+
+	GfDBName   = "tmp/test.db"
 	GsDBConfig = &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true, // use singular table name, table for `User` would be `user` with this option enabled
@@ -21,7 +28,7 @@ var (
 )
 
 //externalIP determines the external IP address
-func GetExternalIP() (string, error) {
+func getExternalIP() (string, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return "", err
@@ -56,4 +63,21 @@ func GetExternalIP() (string, error) {
 		}
 	}
 	return "", errors.New("Are you connected to the network?")
+}
+
+func ServerInit(iMode int, iPath string) (err error) {
+
+	godotenv.Load()
+
+	if os.Getenv("port") != "" {
+		GfPort = ":" + os.Getenv("port")
+	}
+
+	//IP Determine address
+	if ip, err := getExternalIP(); err == nil {
+		GfHost = ip
+		fmt.Println("IP address set:", ip)
+	}
+
+	return
 }
