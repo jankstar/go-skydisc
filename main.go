@@ -23,9 +23,9 @@ func main() {
 		return
 	}
 
-	fmt.Printf("Init DB in Mode %v\n", 1)
-	loDB, _ := gorm.Open(sqlite.Open(lib.GfDBName), lib.GsDBConfig)
-	order.InitOrderDB(loDB)
+	fmt.Printf("Init DB in Mode %v\n", lib.Server.Mode)
+	loDB, _ := gorm.Open(sqlite.Open(lib.Server.DBName), lib.Server.DBConfig)
+	order.InitOrderDB(loDB, lib.Server.Mode)
 
 	gin.SetMode(gin.DebugMode) //gin.ReleaseMode)
 	oRouter := gin.New()
@@ -35,7 +35,6 @@ func main() {
 	oRouter.Delims("<(", ")>")
 	oRouter.StaticFile("favicon.ico", "favicon.ico")
 	oRouter.StaticFile("lookinlogo.png", "lookinlogo.png")
-	//oRouter.Use(static.Serve("/tmp", static.LocalFile(tmpDir, false)))
 	oRouter.Use(static.Serve("/vendor", static.LocalFile("./client/vendor", false)))
 	oRouter.Use(static.Serve("/icon", static.LocalFile("./client", false)))
 	oRouter.LoadHTMLGlob("client/*.html")
@@ -43,6 +42,6 @@ func main() {
 	//routerGroup(oRouter, "/user")
 
 	oRouter.GET("/", indexFunc)
-	oRouter.RunTLS(lib.GfPort, "./key/server.pem", "./key/server.key")
+	oRouter.RunTLS(lib.Server.Port, "./key/server.pem", "./key/server.key")
 	//oRouter.Run(port)
 }

@@ -15,17 +15,28 @@ import (
 )
 
 var (
-	GfHost = "127.0.0.1"
-	GfPort = ":8000"
-
-	GfDBName   = "tmp/test.db"
-	GsDBConfig = &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true, // use singular table name, table for `User` would be `user` with this option enabled
-		},
-		Logger: logger.Default.LogMode(logger.Silent),
+	Server = TServer{
+		Mode:   0,
+		Host:   "127.0.0.1",
+		Port:   ":8000",
+		DBName: "tmp/test.db",
+		DBConfig: &gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true, // use singular table name, table for `User` would be `user` with this option enabled
+			},
+			Logger: logger.Default.LogMode(logger.Silent)},
+		Testfile: "tmp/test.json",
 	}
 )
+
+type TServer struct {
+	Mode     int
+	Host     string
+	Port     string
+	DBName   string
+	DBConfig *gorm.Config
+	Testfile string
+}
 
 //externalIP determines the external IP address
 func getExternalIP() (string, error) {
@@ -67,15 +78,17 @@ func getExternalIP() (string, error) {
 
 func ServerInit(iMode int, iPath string) (err error) {
 
+	Server.Mode = iMode
+
 	godotenv.Load()
 
 	if os.Getenv("port") != "" {
-		GfPort = ":" + os.Getenv("port")
+		Server.Port = ":" + os.Getenv("port")
 	}
 
 	//IP Determine address
 	if ip, err := getExternalIP(); err == nil {
-		GfHost = ip
+		Server.Host = ip
 		fmt.Println("IP address set:", ip)
 	}
 

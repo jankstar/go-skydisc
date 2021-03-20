@@ -1,31 +1,37 @@
 package order
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"time"
 
+	"github.com/jankstar/go-skydisc/lib"
 	"gorm.io/gorm"
 )
 
 //CatOrderClass - define Order class as customization
 type CatOrderClass struct {
-	gorm.Model
-	Class string `json:"class"`
+	Class string `json:"class" gorm:"primaryKey"`
+	Name  string `json:"name"`
 }
 
 //CatTrade - define Order trade as customization
 type CatTrade struct {
-	gorm.Model
-	Trade string `json:"trade"`
+	Trade string `json:"trade" gorm:"primaryKey"`
+	Name  string `json:"name"`
 }
 
 //CatQualification - define Qualification as customization
 type CatQualification struct {
-	gorm.Model
-	Qualification string `json:"qualification"`
+	Qualification string `json:"qualification" gorm:"primaryKey"`
+	Name          string `json:"name"`
 }
 
 type DatLocationBuffer struct {
-	gorm.Model
+	ID           uint `json:"id" gorm:"primaryKey"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 	CountryCode  string    `json:"country_code"`
 	PostCode     string    `json:"post_code"`
 	RegionCode   string    `json:"region_code"`
@@ -41,7 +47,9 @@ type DatLocationBuffer struct {
 }
 
 type DatOrderRequirement struct {
-	gorm.Model
+	ID             uint `json:"id" gorm:"primaryKey"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 	Trade          CatTrade         `json:"trade" gorm:"embedded"`
 	Qualification  CatQualification `json:"qualification" gorm:"embedded;embeddedPrefix:cat_"`
 	NumOfResources int              `json:"num_of_resources"`
@@ -67,7 +75,9 @@ type TLocation struct {
 
 //DatOrder - define data Order entity
 type DatOrder struct {
-	gorm.Model
+	ID            uint `json:"id" gorm:"primaryKey"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 	Description   string                `json:"description"`
 	OrderType     CatOrderClass         `json:"order_type" gorm:"embedded;embeddedPrefix:cat_"`
 	EarliestStart time.Time             `json:"earliest_start"`
@@ -82,7 +92,7 @@ type DatOrder struct {
 //InitOrderDB(iDB *gorm.DB) error
 // initiates the DB tables for the job and all the
 // dependent tables
-func InitOrderDB(iDB *gorm.DB) error {
+func InitOrderDB(iDB *gorm.DB, iMode int) error {
 
 	//Data
 	iDB.AutoMigrate(&DatOrder{})
@@ -93,7 +103,45 @@ func InitOrderDB(iDB *gorm.DB) error {
 	iDB.AutoMigrate(&CatOrderClass{})
 	iDB.AutoMigrate(&CatTrade{})
 	iDB.AutoMigrate(&CatQualification{})
+
+	if iMode == 1 {
+		//Test-Modus - Daten initialisieren
+		iDB.Where("id <> ''").Delete(&DatOrder{})
+		iDB.Where("id <> ''").Delete(&DatLocationBuffer{})
+		iDB.Where("id <> '").Delete(&DatOrderRequirement{})
+
+		iDB.Where("class <> ''").Delete(&CatOrderClass{})
+		iDB.Where("trade <> ''").Delete(&CatTrade{})
+		iDB.Where("qualification <> ''").Delete(&CatQualification{})
+
+		loadTestData(iDB)
+
+	}
+
 	return iDB.Error
+}
+
+func loadTestData(iDB *gorm.DB) {
+	var test struct {
+		TradeList         []CatTrade         `json:"trade_list"`
+		QualificationList []CatQualification `json:"qualification_list"`
+		OrderClassList    []CatOrderClass    `json:"class_list"`
+	}
+	fmt.Println("loadTestData: test.json")
+	data, err := ioutil.ReadFile(lib.Server.Testfile)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	err = json.Unmarshal(data, &test)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	iDB.Save(&test.OrderClassList)
+	iDB.Save(&test.QualificationList)
+	iDB.Save(&test.TradeList)
+	fmt.Println("loadTestData: in DB verbucht")
 }
 
 //Save(iDB *gorm.DB) (err error)
@@ -101,4 +149,9 @@ func InitOrderDB(iDB *gorm.DB) error {
 func (me *DatOrder) Save(iDB *gorm.DB) (err error) {
 	iDB.Save(&me).Commit()
 	return iDB.Error
+}
+
+//Check() (err error)
+func (me *DatOrder) Check() (err error) {
+	return nil
 }
