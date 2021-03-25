@@ -13,7 +13,7 @@ func TestInitDBOrder(t *testing.T) {
 	type args struct {
 		iDB *gorm.DB
 	}
-	lib.Server.Testfile = "../" + lib.Server.Testfile
+	lib.Server.TestfileOrder = "../" + lib.Server.TestfileOrder
 	tests := []struct {
 		name    string
 		args    args

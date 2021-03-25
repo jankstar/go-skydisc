@@ -25,17 +25,19 @@ var (
 				SingularTable: true, // use singular table name, table for `User` would be `user` with this option enabled
 			},
 			Logger: logger.Default.LogMode(logger.Silent)},
-		Testfile: "tmp/test.json",
+		TestfileCatalog: "tmp/catalog.json",
+		TestfileOrder:   "tmp/order.json",
 	}
 )
 
 type TServer struct {
-	Mode     int
-	Host     string
-	Port     string
-	DBName   string
-	DBConfig *gorm.Config
-	Testfile string
+	Mode            int
+	Host            string
+	Port            string
+	DBName          string
+	DBConfig        *gorm.Config
+	TestfileCatalog string
+	TestfileOrder   string
 }
 
 //externalIP determines the external IP address

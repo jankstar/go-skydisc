@@ -1,32 +1,11 @@
 package order
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"time"
 
-	"github.com/jankstar/go-skydisc/lib"
+	"github.com/jankstar/go-skydisc/catalog"
 	"gorm.io/gorm"
 )
-
-//CatOrderClass - define Order class as customization
-type CatOrderClass struct {
-	Class string `json:"class" gorm:"primaryKey"`
-	Name  string `json:"name"`
-}
-
-//CatTrade - define Order trade as customization
-type CatTrade struct {
-	Trade string `json:"trade" gorm:"primaryKey"`
-	Name  string `json:"name"`
-}
-
-//CatQualification - define Qualification as customization
-type CatQualification struct {
-	Qualification string `json:"qualification" gorm:"primaryKey"`
-	Name          string `json:"name"`
-}
 
 type DatLocationBuffer struct {
 	ID           uint `json:"id" gorm:"primaryKey"`
@@ -50,9 +29,9 @@ type DatOrderRequirement struct {
 	ID             uint `json:"id" gorm:"primaryKey"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	Trade          CatTrade         `json:"trade" gorm:"embedded"`
-	Qualification  CatQualification `json:"qualification" gorm:"embedded;embeddedPrefix:cat_"`
-	NumOfResources int              `json:"num_of_resources"`
+	Trade          catalog.CatTrade         `json:"trade" gorm:"embedded"`
+	Qualification  catalog.CatQualification `json:"qualification" gorm:"embedded;embeddedPrefix:cat_"`
+	NumOfResources int                      `json:"num_of_resources"`
 	OrderRefer     string
 }
 
@@ -79,7 +58,7 @@ type DatOrder struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	Description   string                `json:"description"`
-	OrderType     CatOrderClass         `json:"order_type" gorm:"embedded;embeddedPrefix:cat_"`
+	OrderType     catalog.CatOrderClass `json:"order_type" gorm:"embedded;embeddedPrefix:cat_"`
 	EarliestStart time.Time             `json:"earliest_start"`
 	EatestEnd     time.Time             `json:"latest_end"`
 	Duration      time.Duration         `json:"duration"`
@@ -99,49 +78,39 @@ func InitOrderDB(iDB *gorm.DB, iMode int) error {
 	iDB.AutoMigrate(&DatLocationBuffer{})
 	iDB.AutoMigrate(&DatOrderRequirement{})
 
-	//Catalogs
-	iDB.AutoMigrate(&CatOrderClass{})
-	iDB.AutoMigrate(&CatTrade{})
-	iDB.AutoMigrate(&CatQualification{})
-
 	if iMode == 1 {
 		//Test-Modus - Daten initialisieren
 		iDB.Where("id <> ''").Delete(&DatOrder{})
 		iDB.Where("id <> ''").Delete(&DatLocationBuffer{})
 		iDB.Where("id <> '").Delete(&DatOrderRequirement{})
 
-		iDB.Where("class <> ''").Delete(&CatOrderClass{})
-		iDB.Where("trade <> ''").Delete(&CatTrade{})
-		iDB.Where("qualification <> ''").Delete(&CatQualification{})
-
 		loadTestData(iDB)
-
 	}
 
 	return iDB.Error
 }
 
 func loadTestData(iDB *gorm.DB) {
-	var test struct {
-		TradeList         []CatTrade         `json:"trade_list"`
-		QualificationList []CatQualification `json:"qualification_list"`
-		OrderClassList    []CatOrderClass    `json:"class_list"`
-	}
-	fmt.Println("loadTestData: test.json")
-	data, err := ioutil.ReadFile(lib.Server.Testfile)
-	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
-	err = json.Unmarshal(data, &test)
-	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
-	iDB.Save(&test.OrderClassList)
-	iDB.Save(&test.QualificationList)
-	iDB.Save(&test.TradeList)
-	fmt.Println("loadTestData: in DB verbucht")
+	// var test struct {
+	// 	TradeList         []catalog.CatTrade         `json:"trade_list"`
+	// 	QualificationList []catalog.CatQualification `json:"qualification_list"`
+	// 	OrderClassList    []catalog.CatOrderClass    `json:"class_list"`
+	// }
+	// fmt.Println("loadTestData: test.json")
+	// data, err := ioutil.ReadFile(lib.Server.Testfile)
+	// if err != nil {
+	// 	fmt.Println("error:", err)
+	// 	return
+	// }
+	// err = json.Unmarshal(data, &test)
+	// if err != nil {
+	// 	fmt.Println("error:", err)
+	// 	return
+	// }
+	// iDB.Save(&test.OrderClassList)
+	// iDB.Save(&test.QualificationList)
+	// iDB.Save(&test.TradeList)
+	// fmt.Println("loadTestData: in DB verbucht")
 }
 
 //Save(iDB *gorm.DB) (err error)

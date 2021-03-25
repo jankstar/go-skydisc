@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	"github.com/jankstar/go-skydisc/catalog"
 	"github.com/jankstar/go-skydisc/lib"
 	"github.com/jankstar/go-skydisc/order"
 	"gorm.io/driver/sqlite"
@@ -25,6 +26,7 @@ func main() {
 
 	fmt.Printf("Init DB in Mode %v\n", lib.Server.Mode)
 	loDB, _ := gorm.Open(sqlite.Open(lib.Server.DBName), lib.Server.DBConfig)
+	catalog.InitCatalogDB(loDB, lib.Server.Mode)
 	order.InitOrderDB(loDB, lib.Server.Mode)
 
 	gin.SetMode(gin.DebugMode) //gin.ReleaseMode)
