@@ -8,8 +8,6 @@ import (
 	"github.com/jankstar/go-skydisc/catalog"
 	"github.com/jankstar/go-skydisc/lib"
 	"github.com/jankstar/go-skydisc/order"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 //returns context index.html
@@ -18,16 +16,16 @@ func indexFunc(iCon *gin.Context) {
 
 func main() {
 
+	//init Server and DB
 	err := lib.ServerInit(1, "")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-
 	fmt.Printf("Init DB in Mode %v\n", lib.Server.Mode)
-	loDB, _ := gorm.Open(sqlite.Open(lib.Server.DBName), lib.Server.DBConfig)
-	catalog.InitCatalogDB(loDB, lib.Server.Mode)
-	order.InitOrderDB(loDB, lib.Server.Mode)
+
+	catalog.InitCatalogDB(lib.Server.Mode)
+	order.InitOrderDB(lib.Server.Mode)
 
 	gin.SetMode(gin.DebugMode) //gin.ReleaseMode)
 	oRouter := gin.New()

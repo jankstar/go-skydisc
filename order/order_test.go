@@ -6,12 +6,11 @@ import (
 
 	"github.com/jankstar/go-skydisc/catalog"
 	"github.com/jankstar/go-skydisc/lib"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 func TestInitDBOrder(t *testing.T) {
-	loDB, _ := gorm.Open(sqlite.Open("../"+lib.Server.DBName), lib.Server.DBConfig)
+	lib.ServerInit(1, "../")
 	type args struct {
 		iDB *gorm.DB
 	}
@@ -23,7 +22,7 @@ func TestInitDBOrder(t *testing.T) {
 	}{
 		{
 			name:    "Define Test DB 'test.db' in /tmp ",
-			args:    args{loDB},
+			args:    args{lib.Server.DB},
 			wantErr: false,
 		},
 	}
@@ -92,7 +91,6 @@ func TestDatOrder_GetGeoLocationFromBing(t *testing.T) {
 		},
 	}
 	lib.ServerInit(1, "../")
-	loDB, _ := gorm.Open(sqlite.Open("../"+lib.Server.DBName), lib.Server.DBConfig)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			me := &DatOrder{
@@ -109,7 +107,7 @@ func TestDatOrder_GetGeoLocationFromBing(t *testing.T) {
 				Client:        tt.fields.Client,
 				Requirement:   tt.fields.Requirement,
 			}
-			me.GetGeoLocationFromBing(loDB)
+			me.GetGeoLocationFromBing(lib.Server.DB)
 			if me.Location.GeoLatitude != 52.521915 ||
 				me.Location.GeoLongitude != 13.415063 {
 				t.Errorf("GetGeoLocationFromBing() Latitude 52.521915 != %v, Longitude 13.415063 != %v",

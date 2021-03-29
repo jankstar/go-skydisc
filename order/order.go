@@ -9,7 +9,6 @@ import (
 
 	"github.com/jankstar/go-skydisc/catalog"
 	"github.com/jankstar/go-skydisc/lib"
-	"gorm.io/gorm"
 )
 
 //DatLocationBuffer is the DB Buffer table for location and geo-location
@@ -82,28 +81,28 @@ type DatOrder struct {
 //InitOrderDB(iDB *gorm.DB) error
 // initiates the DB tables for the job and all the
 // dependent tables
-func InitOrderDB(iDB *gorm.DB, iMode int) error {
+func InitOrderDB(iMode int) error {
 
 	//Data
-	iDB.AutoMigrate(&DatOrder{})
-	iDB.AutoMigrate(&DatLocationBuffer{})
-	iDB.AutoMigrate(&DatOrderRequirement{})
+	lib.Server.DB.AutoMigrate(&DatOrder{})
+	lib.Server.DB.AutoMigrate(&DatLocationBuffer{})
+	lib.Server.DB.AutoMigrate(&DatOrderRequirement{})
 
 	if iMode == 1 {
 		//Test-Modus - Daten initialisieren
-		iDB.Where("id <> ''").Delete(&DatOrder{})
-		iDB.Where("id <> ''").Delete(&DatLocationBuffer{})
-		iDB.Where("id <> '").Delete(&DatOrderRequirement{})
+		lib.Server.DB.Where("id <> ''").Delete(&DatOrder{})
+		lib.Server.DB.Where("id <> ''").Delete(&DatLocationBuffer{})
+		lib.Server.DB.Where("id <> '").Delete(&DatOrderRequirement{})
 
-		loadTestData(iDB)
+		loadTestData()
 	}
 
-	return iDB.Error
+	return lib.Server.DB.Error
 }
 
 //*********************************
 
-func loadTestData(iDB *gorm.DB) {
+func loadTestData() {
 	var test struct {
 		OrderList []DatOrder `json:"order_list"`
 	}
@@ -118,7 +117,7 @@ func loadTestData(iDB *gorm.DB) {
 		fmt.Println("error:", err)
 		return
 	}
-	iDB.Save(&test.OrderList)
+	lib.Server.DB.Save(&test.OrderList)
 
 	fmt.Println("loadTestData: in DB verbucht")
 }
@@ -126,9 +125,9 @@ func loadTestData(iDB *gorm.DB) {
 //************************************
 //Save(iDB *gorm.DB) (err error)
 // save der Order itself
-func (me *DatOrder) Save(iDB *gorm.DB) (err error) {
-	iDB.Save(&me)
-	return iDB.Error
+func (me *DatOrder) Save() (err error) {
+	lib.Server.DB.Save(&me)
+	return lib.Server.DB.Error
 }
 
 //Check() (err error)
@@ -137,7 +136,7 @@ func (me *DatOrder) Check() (err error) {
 }
 
 //GetGeoLocationFromBing call Bing REST for GeoLocation
-func (me *DatOrder) GetGeoLocationFromBing(iDB *gorm.DB) {
+func (me *DatOrder) GetGeoLocationFromBing() {
 	var dstLocation struct {
 		ResourceSets []struct {
 			EstimatedTotal int `json:"estimatedTotal"`
@@ -173,7 +172,7 @@ func (me *DatOrder) GetGeoLocationFromBing(iDB *gorm.DB) {
 
 	//first we search in buffer
 	var lLocSearch DatLocationBuffer
-	iDB.Where(&DatLocationBuffer{
+	lib.Server.DB.Where(&DatLocationBuffer{
 		CountryCode:  me.Location.CountryCode,
 		PostCode:     me.Location.PostCode,
 		RegionCode:   me.Location.RegionCode,
@@ -182,7 +181,7 @@ func (me *DatOrder) GetGeoLocationFromBing(iDB *gorm.DB) {
 		StreetNumber: me.Location.StreetNumber,
 		BuildingName: me.Location.BuildingName,
 	}).First(&lLocSearch)
-	if iDB.Error == nil &&
+	if lib.Server.DB.Error == nil &&
 		lLocSearch.GeoLatitude != 0 &&
 		lLocSearch.GeoLongitude != 0 {
 		me.Location.GeoAltitude = lLocSearch.GeoAltitude
@@ -279,6 +278,6 @@ func (me *DatOrder) GetGeoLocationFromBing(iDB *gorm.DB) {
 		GeoTimestamp: me.Location.GeoTimestamp,
 		GeoServices:  me.Location.GeoServices,
 	}
-	iDB.Create(&lLoc)
+	lib.Server.DB.Create(&lLoc)
 
 }

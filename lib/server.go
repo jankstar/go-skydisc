@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -16,15 +17,17 @@ import (
 
 var (
 	Server = TServer{
-		Mode:   0,
-		Host:   "127.0.0.1",
-		Port:   ":8000",
+		Mode: 0,
+		Host: "127.0.0.1",
+		Port: ":8000",
+		//
 		DBName: "tmp/test.db",
 		DBConfig: &gorm.Config{
 			NamingStrategy: schema.NamingStrategy{
 				SingularTable: true, // use singular table name, table for `User` would be `user` with this option enabled
 			},
 			Logger: logger.Default.LogMode(logger.Silent)},
+		//
 		TestfileCatalog: "tmp/catalog.json",
 		TestfileOrder:   "tmp/order.json",
 		BingURLLocation: "https://dev.virtualearth.net/REST/v1/Locations/%s/%s/%s/%s?" +
@@ -38,6 +41,7 @@ type TServer struct {
 	Mode            int
 	Host            string
 	Port            string
+	DB              *gorm.DB
 	DBName          string
 	DBConfig        *gorm.Config
 	TestfileCatalog string
@@ -105,5 +109,6 @@ func ServerInit(iMode int, iPath string) (err error) {
 		Server.BingApiKey = os.Getenv("bing_api_key")
 	}
 
+	Server.DB, err = gorm.Open(sqlite.Open(iPath+Server.DBName), Server.DBConfig)
 	return
 }

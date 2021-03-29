@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 
 	"github.com/jankstar/go-skydisc/lib"
-	"gorm.io/gorm"
 )
 
 //CatOrderClass - define Order class as customization
@@ -27,28 +26,28 @@ type CatQualification struct {
 	Name          string `json:"name"`
 }
 
-func InitCatalogDB(iDB *gorm.DB, iMode int) error {
+func InitCatalogDB(iMode int) error {
 
 	//Catalogs
-	iDB.AutoMigrate(&CatOrderClass{})
-	iDB.AutoMigrate(&CatTrade{})
-	iDB.AutoMigrate(&CatQualification{})
+	lib.Server.DB.AutoMigrate(&CatOrderClass{})
+	lib.Server.DB.AutoMigrate(&CatTrade{})
+	lib.Server.DB.AutoMigrate(&CatQualification{})
 
 	if iMode == 1 {
 		//Test-Modus - Daten initialisieren
 
-		iDB.Where("class <> ''").Delete(&CatOrderClass{})
-		iDB.Where("trade <> ''").Delete(&CatTrade{})
-		iDB.Where("qualification <> ''").Delete(&CatQualification{})
+		lib.Server.DB.Where("class <> ''").Delete(&CatOrderClass{})
+		lib.Server.DB.Where("trade <> ''").Delete(&CatTrade{})
+		lib.Server.DB.Where("qualification <> ''").Delete(&CatQualification{})
 
-		loadTestData(iDB)
+		loadTestData()
 
 	}
 
-	return iDB.Error
+	return lib.Server.DB.Error
 }
 
-func loadTestData(iDB *gorm.DB) {
+func loadTestData() {
 	var test struct {
 		TradeList         []CatTrade         `json:"trade_list"`
 		QualificationList []CatQualification `json:"qualification_list"`
@@ -65,8 +64,8 @@ func loadTestData(iDB *gorm.DB) {
 		fmt.Println("error:", err)
 		return
 	}
-	iDB.Save(&test.OrderClassList)
-	iDB.Save(&test.QualificationList)
-	iDB.Save(&test.TradeList)
+	lib.Server.DB.Save(&test.OrderClassList)
+	lib.Server.DB.Save(&test.QualificationList)
+	lib.Server.DB.Save(&test.TradeList)
 	fmt.Println("loadTestData Catalog: in DB verbucht")
 }
