@@ -27,6 +27,10 @@ var (
 			Logger: logger.Default.LogMode(logger.Silent)},
 		TestfileCatalog: "tmp/catalog.json",
 		TestfileOrder:   "tmp/order.json",
+		BingURLLocation: "https://dev.virtualearth.net/REST/v1/Locations/%s/%s/%s/%s?" +
+			"includeNeighborhood=1&include=ciso2&maxResults=%d&key=%s",
+		BingURLTimezone: "https://dev.virtualearth.net/REST/v1/TimeZone/?query=%s&key=%s",
+		BingApiKey:      "", //put api key in .env file
 	}
 )
 
@@ -38,10 +42,13 @@ type TServer struct {
 	DBConfig        *gorm.Config
 	TestfileCatalog string
 	TestfileOrder   string
+	BingURLLocation string
+	BingURLTimezone string
+	BingApiKey      string
 }
 
 //externalIP determines the external IP address
-func getExternalIP() (string, error) {
+func GetExternalIP() (string, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return "", err
@@ -82,16 +89,20 @@ func ServerInit(iMode int, iPath string) (err error) {
 
 	Server.Mode = iMode
 
-	godotenv.Load()
+	err = godotenv.Load(iPath + ".env")
 
 	if os.Getenv("port") != "" {
 		Server.Port = ":" + os.Getenv("port")
 	}
 
 	//IP Determine address
-	if ip, err := getExternalIP(); err == nil {
+	if ip, err := GetExternalIP(); err == nil {
 		Server.Host = ip
 		fmt.Println("IP address set:", ip)
+	}
+
+	if os.Getenv("bing_api_key") != "" {
+		Server.BingApiKey = os.Getenv("bing_api_key")
 	}
 
 	return

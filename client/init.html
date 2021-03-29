@@ -1,0 +1,77 @@
+<!--index.html-->
+<!DOCTYPE html>
+<html id="index">
+  <!--
+    WARNING! Make sure that you match all Quasar related
+    tags to the same version! (Below it's "@1.12.8")
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <head>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/quasar@1.14.7/dist/quasar.min.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+    <div id="q-app" class="q-pa-md">
+    </div>
+
+    <!-- Add the following at the end of your body tag -->
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue@^2.0.0/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@1.14.7/dist/quasar.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@1.14.7/dist/lang/de.umd.min.js"></script>
+    
+    <script>
+      Quasar.lang.set(Quasar.lang.de)
+
+      /*
+        Example kicking off the UI. Obviously, adapt this to your specific needs.
+        Assumes you have a <div id="q-app"></div> in your <body> above
+       */
+      new Vue({
+        el: '#q-app',
+        //
+        data: function () {
+          return {
+            //hier die Daten des template
+            title: '<(.title)>',
+            }
+        },
+        computed: {
+        },
+        //
+        created() {
+        },
+        //
+        methods: {
+          //Daten vom Server async holen
+          // getDataFromApi() {
+          //   me = this;
+          //   var myURL = window.location.href + "?json=true";
+          //   var xmlHttp = new XMLHttpRequest();
+          //   xmlHttp.open( "GET", myURL, true );
+          //   xmlHttp.onload = function (e) {
+          //     if (xmlHttp.readyState === 4) {
+          //       if (xmlHttp.status === 200) {
+          //         me.server = JSON.parse(xmlHttp.responseText);
+          //         me.loading = false;
+          //         console.log(xmlHttp.responseText);
+          //       } else {
+          //         console.error(xmlHttp.statusText);
+          //       }
+          //     }
+          //   };
+          //   xmlHttp.onerror = function (e) {
+          //     console.error(xmlHttp.statusText);
+          //   };
+          //   xmlHttp.send( null );
+          // },
+
+        },
+        // ...etc
+      })
+    </script>
+  </body>
+</html>
