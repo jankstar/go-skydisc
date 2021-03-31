@@ -13,7 +13,10 @@ Order
 Order with the following properties
 * class of service (e.g. unplanned ticket, planned maintenance)
 * describes a service
+* priority, distress
+* Project number and name
 * earliest start and latest end - e.g. agreed deadline
+* predecessor relationships
 * Services location: Address, contact person, client, geo-coordinates.
 * requirement: necessary qualification, trade and number of resources
 * Duration

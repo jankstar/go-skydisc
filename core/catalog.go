@@ -1,11 +1,9 @@
-package catalog
+package core
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-
-	"github.com/jankstar/go-skydisc/lib"
 )
 
 //CatOrderClass - define Order class as customization
@@ -29,32 +27,32 @@ type CatQualification struct {
 func InitCatalogDB(iMode int) error {
 
 	//Catalogs
-	lib.Server.DB.AutoMigrate(&CatOrderClass{})
-	lib.Server.DB.AutoMigrate(&CatTrade{})
-	lib.Server.DB.AutoMigrate(&CatQualification{})
+	Server.DB.AutoMigrate(&CatOrderClass{})
+	Server.DB.AutoMigrate(&CatTrade{})
+	Server.DB.AutoMigrate(&CatQualification{})
 
 	if iMode == 1 {
 		//Test-Modus - Daten initialisieren
 
-		lib.Server.DB.Where("class <> ''").Delete(&CatOrderClass{})
-		lib.Server.DB.Where("trade <> ''").Delete(&CatTrade{})
-		lib.Server.DB.Where("qualification <> ''").Delete(&CatQualification{})
+		Server.DB.Where("class <> ''").Delete(&CatOrderClass{})
+		Server.DB.Where("trade <> ''").Delete(&CatTrade{})
+		Server.DB.Where("qualification <> ''").Delete(&CatQualification{})
 
-		loadTestData()
+		loadTestDataCatalog()
 
 	}
 
-	return lib.Server.DB.Error
+	return Server.DB.Error
 }
 
-func loadTestData() {
+func loadTestDataCatalog() {
 	var test struct {
 		TradeList         []CatTrade         `json:"trade_list"`
 		QualificationList []CatQualification `json:"qualification_list"`
 		OrderClassList    []CatOrderClass    `json:"class_list"`
 	}
-	fmt.Println("loadTestData catalog: ", lib.Server.TestfileCatalog)
-	data, err := ioutil.ReadFile(lib.Server.TestfileCatalog)
+	fmt.Println("loadTestData catalog: ", Server.TestfileCatalog)
+	data, err := ioutil.ReadFile(Server.Path + Server.TestfileCatalog)
 	if err != nil {
 		fmt.Println("error:", err)
 		return
@@ -64,8 +62,8 @@ func loadTestData() {
 		fmt.Println("error:", err)
 		return
 	}
-	lib.Server.DB.Save(&test.OrderClassList)
-	lib.Server.DB.Save(&test.QualificationList)
-	lib.Server.DB.Save(&test.TradeList)
+	Server.DB.Save(&test.OrderClassList)
+	Server.DB.Save(&test.QualificationList)
+	Server.DB.Save(&test.TradeList)
 	fmt.Println("loadTestData Catalog: in DB verbucht")
 }

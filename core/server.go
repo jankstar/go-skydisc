@@ -1,4 +1,4 @@
-package lib
+package core
 
 //Library for central processing and server functions
 
@@ -28,8 +28,11 @@ var (
 			},
 			Logger: logger.Default.LogMode(logger.Silent)},
 		//
+		Path:            "",
 		TestfileCatalog: "tmp/catalog.json",
 		TestfileOrder:   "tmp/order.json",
+		TestfileOrga:    "tmp/orga.json",
+		//
 		BingURLLocation: "https://dev.virtualearth.net/REST/v1/Locations/%s/%s/%s/%s?" +
 			"includeNeighborhood=1&include=ciso2&maxResults=%d&key=%s",
 		BingURLTimezone: "https://dev.virtualearth.net/REST/v1/TimeZone/?query=%s&key=%s",
@@ -44,8 +47,10 @@ type TServer struct {
 	DB              *gorm.DB
 	DBName          string
 	DBConfig        *gorm.Config
+	Path            string
 	TestfileCatalog string
 	TestfileOrder   string
+	TestfileOrga    string
 	BingURLLocation string
 	BingURLTimezone string
 	BingApiKey      string
@@ -89,10 +94,16 @@ func GetExternalIP() (string, error) {
 	return "", errors.New("Are you connected to the network?")
 }
 
+//ServerInit Initialize server, read .env variables
+// Initialize DB
+// iMode int -> 0:run or 1:Testdaten
+// iPath string -> path for data files
 func ServerInit(iMode int, iPath string) (err error) {
 
 	Server.Mode = iMode
+	Server.Path = iPath
 
+	//load and handle .env variables
 	err = godotenv.Load(iPath + ".env")
 
 	if os.Getenv("port") != "" {
@@ -109,6 +120,7 @@ func ServerInit(iMode int, iPath string) (err error) {
 		Server.BingApiKey = os.Getenv("bing_api_key")
 	}
 
+	//init DB
 	Server.DB, err = gorm.Open(sqlite.Open(iPath+Server.DBName), Server.DBConfig)
 	return
 }
