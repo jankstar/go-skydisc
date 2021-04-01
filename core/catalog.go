@@ -24,12 +24,19 @@ type CatQualification struct {
 	Name          string `json:"name"`
 }
 
+//CatSection - define Appointment Section as customization
+type CatSection struct {
+	Section uint   `json:"section" gorm:"primaryKey"`
+	Name    string `json:"name"`
+}
+
 func InitCatalogDB(iMode int) error {
 
 	//Catalogs
 	Server.DB.AutoMigrate(&CatOrderClass{})
 	Server.DB.AutoMigrate(&CatTrade{})
 	Server.DB.AutoMigrate(&CatQualification{})
+	Server.DB.AutoMigrate(&CatSection{})
 
 	if iMode == 1 {
 		//Test-Modus - Daten initialisieren
@@ -37,6 +44,7 @@ func InitCatalogDB(iMode int) error {
 		Server.DB.Where("class <> ''").Delete(&CatOrderClass{})
 		Server.DB.Where("trade <> ''").Delete(&CatTrade{})
 		Server.DB.Where("qualification <> ''").Delete(&CatQualification{})
+		Server.DB.Where("section <> ''").Delete(&CatSection{})
 
 		loadTestDataCatalog()
 
@@ -50,6 +58,7 @@ func loadTestDataCatalog() {
 		TradeList         []CatTrade         `json:"trade_list"`
 		QualificationList []CatQualification `json:"qualification_list"`
 		OrderClassList    []CatOrderClass    `json:"class_list"`
+		SectionList       []CatSection       `json:"section_list"`
 	}
 	fmt.Println("loadTestData catalog: ", Server.TestfileCatalog)
 	data, err := ioutil.ReadFile(Server.Path + Server.TestfileCatalog)
@@ -65,5 +74,6 @@ func loadTestDataCatalog() {
 	Server.DB.Save(&test.OrderClassList)
 	Server.DB.Save(&test.QualificationList)
 	Server.DB.Save(&test.TradeList)
+	Server.DB.Save(&test.SectionList)
 	fmt.Println("loadTestData Catalog: in DB verbucht")
 }

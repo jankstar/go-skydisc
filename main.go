@@ -27,7 +27,10 @@ func main() {
 	core.InitLocationDB(core.Server.Mode)
 	core.InitRequirementDB(core.Server.Mode)
 	core.InitOrgaDB(core.Server.Mode)
+	core.InitCalendarDB(core.Server.Mode)
+	core.InitResourceDB(core.Server.Mode)
 	core.InitOrderDB(core.Server.Mode)
+	core.InitAppointmentDB(core.Server.Mode)
 
 	gin.SetMode(gin.DebugMode) //gin.ReleaseMode)
 	oRouter := gin.New()

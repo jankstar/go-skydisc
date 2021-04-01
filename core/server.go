@@ -28,10 +28,12 @@ var (
 			},
 			Logger: logger.Default.LogMode(logger.Silent)},
 		//
-		Path:            "",
-		TestfileCatalog: "tmp/catalog.json",
-		TestfileOrder:   "tmp/order.json",
-		TestfileOrga:    "tmp/orga.json",
+		Path:             "",
+		TestfileCatalog:  "tmp/catalog.json",
+		TestfileOrder:    "tmp/order.json",
+		TestfileOrga:     "tmp/orga.json",
+		TestfileResource: "tmp/resource.json",
+		TestfileCalendar: "tmp/calendar.json",
 		//
 		BingURLLocation: "https://dev.virtualearth.net/REST/v1/Locations/%s/%s/%s/%s?" +
 			"includeNeighborhood=1&include=ciso2&maxResults=%d&key=%s",
@@ -41,19 +43,21 @@ var (
 )
 
 type TServer struct {
-	Mode            int
-	Host            string
-	Port            string
-	DB              *gorm.DB
-	DBName          string
-	DBConfig        *gorm.Config
-	Path            string
-	TestfileCatalog string
-	TestfileOrder   string
-	TestfileOrga    string
-	BingURLLocation string
-	BingURLTimezone string
-	BingApiKey      string
+	Mode             int
+	Host             string
+	Port             string
+	DB               *gorm.DB
+	DBName           string
+	DBConfig         *gorm.Config
+	Path             string
+	TestfileCatalog  string
+	TestfileOrder    string
+	TestfileOrga     string
+	TestfileResource string
+	TestfileCalendar string
+	BingURLLocation  string
+	BingURLTimezone  string
+	BingApiKey       string
 }
 
 //externalIP determines the external IP address

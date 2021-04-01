@@ -18,7 +18,7 @@ type DataServiceArea struct {
 	UpdatedAt   time.Time
 	Name        string            `json:"name"`
 	Location    TLocation         `json:"location" gorm:"embedded"`
-	Requirement []DataRequirement `json:"requirement" gorm:"foreignKey:ServiceAreaRefer"`
+	Requirement []DataRequirement `json:"requirement" gorm:"foreignKey:ServiceAreaRef"`
 }
 
 func InitOrgaDB(iMode int) error {

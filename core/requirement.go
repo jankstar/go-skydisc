@@ -14,8 +14,8 @@ type DataRequirement struct {
 	QualificationRef string           `json:"qualification_ref"`
 	Qualification    CatQualification `json:"qualification" gorm:"foreignKey:QualificationRef"`
 	NumOfResources   int              `json:"num_of_resources"`
-	OrderRefer       string
-	ServiceAreaRefer string
+	ServiceAreaRef   string
+	ResourceRef      string
 }
 
 //InitRequirementDB(iDB *gorm.DB) error

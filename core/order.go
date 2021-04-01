@@ -18,26 +18,26 @@ type DataProjekt struct {
 
 //DatOrder - define data Order entity
 type DataOrder struct {
-	ID               uint `json:"id" gorm:"primaryKey; autoIncrement"`
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	Description      string            `json:"description"`
-	OrderTypeRef     string            `json:"order_type_ref"`
-	OrderType        CatOrderClass     `json:"order_type" gorm:"foreignKey:OrderTypeRef"`
-	EarliestStart    time.Time         `json:"earliest_start"`
-	LatestEnd        time.Time         `json:"latest_end"`
-	Distress         bool              `json:"distress"`
-	Priority         int               `json:"priority"`
-	ProjectRef       string            `json:"project_ref"`
-	Project          DataProjekt       `json:"project" gorm:"foreignKey:ProjectRef"`
-	Duration         time.Duration     `json:"duration"`
-	Location         TLocation         `json:"location" gorm:"embedded"`
-	ContactPerson    string            `json:"contact_person"`
-	Client           string            `json:"client"`
-	Requirement      []DataRequirement `json:"requirement" gorm:"foreignKey:OrderRefer"`
-	PredecessorRef   uint              `json:"predecessor_ref"`
-	ServiceAreaRefer string            `json:"service_area_refer"`
-	ServiceArea      DataServiceArea   `json:"service_area" gorm:"foreignKey:ServiceAreaRefer"`
+	ID             uint `json:"id" gorm:"primaryKey; autoIncrement"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	Description    string          `json:"description"`
+	OrderTypeRef   string          `json:"order_type_ref"`
+	OrderType      CatOrderClass   `json:"order_type" gorm:"foreignKey:OrderTypeRef"`
+	EarliestStart  time.Time       `json:"earliest_start"`
+	LatestEnd      time.Time       `json:"latest_end"`
+	Distress       bool            `json:"distress"`
+	Priority       int             `json:"priority"`
+	ProjectRef     string          `json:"project_ref"`
+	Project        DataProjekt     `json:"project" gorm:"foreignKey:ProjectRef"`
+	Duration       time.Duration   `json:"duration"`
+	Location       TLocation       `json:"location" gorm:"embedded"`
+	ContactPerson  string          `json:"contact_person"`
+	Client         string          `json:"client"`
+	Requirement    DataRequirement `json:"requirement" gorm:"embedded"`
+	PredecessorRef uint            `json:"predecessor_ref"`
+	ServiceAreaRef string          `json:"service_area_ref"`
+	ServiceArea    DataServiceArea `json:"service_area" gorm:"foreignKey:ServiceAreaRef"`
 }
 
 //InitOrderDB(iDB *gorm.DB) error
