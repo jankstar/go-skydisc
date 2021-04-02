@@ -5,6 +5,8 @@ import (
 )
 
 func TestInitOrgaDB(t *testing.T) {
+	ServerInit(1, "../")
+
 	type args struct {
 		iMode int
 	}
@@ -21,7 +23,7 @@ func TestInitOrgaDB(t *testing.T) {
 			wantErr: false,
 		},
 	}
-	ServerInit(1, "../")
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := InitOrgaDB(tt.args.iMode); (err != nil) != tt.wantErr {

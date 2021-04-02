@@ -31,6 +31,7 @@ func TestGetExternalIP(t *testing.T) {
 }
 
 func TestServerInit(t *testing.T) {
+
 	type args struct {
 		iMode int
 		iPath string
@@ -51,7 +52,7 @@ func TestServerInit(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := ServerInit(tt.args.iMode, tt.args.iPath); (err != nil) != tt.wantErr {
+			if _, err := ServerInit(tt.args.iMode, tt.args.iPath); (err != nil) != tt.wantErr {
 				t.Errorf("ServerInit() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

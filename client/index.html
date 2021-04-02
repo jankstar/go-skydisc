@@ -1,0 +1,281 @@
+<!--index.html-->
+<!DOCTYPE html>
+<html id="index">
+<!--
+    WARNING! Make sure that you match all Quasar related
+    tags to the same version! (Below it's "@2.0.0-beta.11")
+  -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<head>
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
+    type="text/css">
+  <link href="https://cdn.jsdelivr.net/npm/quasar@1.15.8/dist/quasar.min.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <div id="q-app" class="q-pa-md">
+    <q-layout view="lHh Lpr lFf" class="bg-white">
+      <q-header elevated>
+        <q-toolbar>
+          <q-btn flat dense round @click="leftDrawerOpen = !leftDrawerOpen" aria-label="Menu" icon="menu" />
+
+          <q-toolbar-title>
+            <(.title)>
+          </q-toolbar-title>
+
+        </q-toolbar>
+      </q-header>
+
+      <q-drawer v-model="leftDrawerOpen" show-if-above bordered content-class="bg-grey-2">
+        <q-list>
+          <q-item-label header>Menü</q-item-label>
+          <q-item clickable tag="a" target="_blank" rel="noopener" href="http://quasar.dev">
+            <q-item-section avatar>
+              <q-icon name="school" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Docs</q-item-label>
+              <q-item-label caption>https://quasar.dev</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable tag="a" target="_blank" rel="noopener" href="https://github.quasar.dev">
+            <q-item-section avatar>
+              <q-icon name="code" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Github</q-item-label>
+              <q-item-label caption>github.com/quasarframework</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable tag="a" target="_blank" rel="noopener" href="http://chat.quasar.dev">
+            <q-item-section avatar>
+              <q-icon name="chat" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Discord Chat Channel</q-item-label>
+              <q-item-label caption>https://chat.quasar.dev</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable tag="a" target="_blank" rel="noopener" href="https://forum.quasar.dev">
+            <q-item-section avatar>
+              <q-icon name="record_voice_over" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Forum</q-item-label>
+              <q-item-label caption>https://forum.quasar.dev</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable tag="a" target="_blank" rel="noopener" href="https://twitter.quasar.dev">
+            <q-item-section avatar>
+              <q-icon name="rss_feed" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Twitter</q-item-label>
+              <q-item-label caption>@quasarframework</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable tag="a" target="_blank" rel="noopener" href="https://facebook.quasar.dev">
+            <q-item-section avatar>
+              <q-icon name="public" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Facebook</q-item-label>
+              <q-item-label caption>@QuasarFramework</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-drawer>
+
+      <q-page-container>
+        <!--router-view /-->
+
+        <div>
+
+          <!-- Tablle  -->
+          <q-table style="height: 850px; " :data="tableData"  row-key="id" :visible-columns="visibleColumns"
+            no-data-label="I didn't find anything" :separator="separator" :loading="loading" :filter="filter"
+            selection="single" :selected.sync="selected" virtual-scroll :rows-per-page-options="[0]">
+            <template v-slot:top-left>
+              <q-text>{{tableTitle}}</q-text>
+            </template>
+
+            <template v-slot:top-right="props">
+
+              <q-input dense debounce="300" v-model="filter" placeholder="Filter" outlined clearable flat
+                class="q-ml-sm">
+                <template v-slot:append>
+                  <q-icon name="filter_alt"></q-icon>
+                </template>
+              </q-input>
+
+              <q-space></q-space>
+
+              <q-space></q-space>
+
+              <q-btn icon-right="archive" no-caps @click="exportTable" flat class="q-ml-sm" color="primary">
+                <q-tooltip>CSV Export</q-tooltip>
+              </q-btn>
+              <q-btn :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'" flat round dense
+                @click="props.toggleFullscreen" class="q-ml-sm" color="primary"></q-btn>
+
+            </template>
+          </q-table>
+
+        </div>
+
+      </q-page-container>
+    </q-layout>
+  </div>
+
+  <!-- Add the following at the end of your body tag -->
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@^2.0.0/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.8/dist/quasar.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.8/dist/lang/de.umd.min.js"></script>
+  <!--script src="https://cdn.jsdelivr.net/npm/flat@5.0.2/index.min.js"></script-->
+  <script src="/vendor/flat.index.min.js"></script>
+
+  <script>
+    /*
+      Example kicking off the UI. Obviously, adapt this to your specific needs.
+      Assumes you have a <div id="q-app"></div> in your <body> above
+     */
+    Quasar.lang.set(Quasar.lang.de)
+    app = new Vue({
+      el: '#q-app',
+      //
+      data: function () {
+        return {
+          title: '<(.title)>',
+          leftDrawerOpen: false,
+          tableData: [],
+          tableTitle: "",
+          seach_field: "id",
+          search: "*",
+          maxline: 50,
+          filter: "",
+          loading: false,
+          separator: "cell",
+          pagination: { rowsPerPage: 0 },
+          visibleColumns: [],
+          selected: [],
+        }
+      },
+      computed: {
+      },
+      //
+      created() {
+        this.tableTitle = "Order";
+        this.getDataFromApi("DataOrder", "?q=" + this.seach_field + ":" + this.search.replaceAll('%', '*') +
+          "&sort=earliest_start%20desc&rows=" + this.maxline, "tableData");
+
+      },
+      //
+      mounted() {
+
+      },
+      //
+      methods: {
+
+        //Daten vom Server async holen
+        getDataFromApi(iPath, iQuery, cData) {
+          me = this;
+
+          var myURL = window.origin + "/api/" + iPath + iQuery;
+          var xmlHttp = new XMLHttpRequest();
+          xmlHttp.open("GET", myURL, true);
+          xmlHttp.onload = function (e) {
+            if (xmlHttp.readyState === 4) {
+              if (xmlHttp.status === 200) {
+
+                //me[cData] 
+                var myData = []
+                me[cData] = []
+                myData = JSON.parse(xmlHttp.responseText)["data"];
+                if (myData != null && "forEach" in myData) {
+                  myData.forEach((row, index) => {
+                    row = flatten(row);
+                    me[cData].push(row)
+                  });
+                }
+                me["visibleColumns"] = JSON.parse(xmlHttp.responseText)["visible_columns"];
+
+              } else {
+                console.error(xmlHttp.statusText);
+                me.$q.notify({
+                  message: 'Suchstring fehlerhaft:' + xmlHttp.status.toString() + ":" + xmlHttp.statusText,
+                  color: 'negative',
+                  icon: 'warning'
+                });
+              }
+            }
+          };
+          xmlHttp.onerror = function (e) {
+            console.error(xmlHttp.statusText);
+            me.$q.notify({
+              message: 'Suchstring fehlerhaft:' + xmlHttp.status.toString() + ":" + xmlHttp.statusText,
+              color: 'negative',
+              icon: 'warning'
+            });
+          };
+
+          xmlHttp.send(null);
+        },
+
+        //Export der Tabelle als CSV
+        exportTable() {
+          // naive encoding to csv format
+          const content = [this.columns.map(col => wrapCsvValue(col.label))].concat(
+            this.record.map(row => this.columns.map(col => wrapCsvValue(
+              typeof col.field === 'function'
+                ? col.field(row)
+                : row[col.field === void 0 ? col.name : col.field],
+              col.format
+            )).join(','))
+          ).join('\r\n')
+
+          const status = Quasar.exportFile(
+            'table-export.csv',
+            content,
+            'text/csv'
+          )
+
+          if (status !== true) {
+            this.$q.notify({
+              message: 'Browser denied file download...',
+              color: 'negative',
+              icon: 'warning'
+            })
+          }
+        },
+
+      },
+      // ...etc
+    });
+
+    function wrapCsvValue(val, formatFn) {
+      let formatted = formatFn !== void 0
+        ? formatFn(val)
+        : val
+
+      formatted = formatted === void 0 || formatted === null
+        ? ''
+        : String(formatted)
+
+      formatted = formatted.split('"').join('""')
+      /**
+      * Excel accepts \n and \r in strings, but some other CSV parsers do not
+      * Uncomment the next two lines to escape new lines
+      */
+      // .split('\n').join('\\n')
+      // .split('\r').join('\\r')
+
+      return `"${formatted}"`
+    }
+
+  </script>
+</body>
+
+</html>

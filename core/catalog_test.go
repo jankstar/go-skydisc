@@ -3,6 +3,7 @@ package core
 import "testing"
 
 func TestInitCatalogDB(t *testing.T) {
+
 	ServerInit(1, "../")
 	type args struct {
 		iMode int

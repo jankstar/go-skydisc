@@ -26,6 +26,15 @@ type TLocation struct {
 	GeoServices   string    `json:"GeoServices"`
 }
 
+type DataPostCodeArea struct {
+	ID             uint `json:"id" gorm:"primaryKey; autoIncrement"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	CountryCode    string `json:"country_code"`
+	PostCode       string `json:"post_code"`
+	ServiceAreaRef string
+}
+
 //DatLocationBuffer is the DB Buffer table for location and geo-location
 // so we not need to recall bing REST
 type DataLocationBuffer struct {
@@ -54,6 +63,7 @@ func InitLocationDB(iMode int) error {
 
 	//Data
 	Server.DB.AutoMigrate(&DataLocationBuffer{})
+	Server.DB.AutoMigrate(&DataPostCodeArea{})
 
 	if iMode == 1 {
 		//Test-Modus - Daten initialisieren

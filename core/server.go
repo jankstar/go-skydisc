@@ -102,29 +102,41 @@ func GetExternalIP() (string, error) {
 // Initialize DB
 // iMode int -> 0:run or 1:Testdaten
 // iPath string -> path for data files
-func ServerInit(iMode int, iPath string) (err error) {
+func ServerInit(iMode int, iPath string) (me *TServer, err error) {
 
-	Server.Mode = iMode
-	Server.Path = iPath
+	me = &Server
+	me.Mode = iMode
+	me.Path = iPath
 
 	//load and handle .env variables
 	err = godotenv.Load(iPath + ".env")
 
 	if os.Getenv("port") != "" {
-		Server.Port = ":" + os.Getenv("port")
+		me.Port = ":" + os.Getenv("port")
 	}
 
 	//IP Determine address
 	if ip, err := GetExternalIP(); err == nil {
-		Server.Host = ip
+		me.Host = ip
 		fmt.Println("IP address set:", ip)
 	}
 
+	//api-key for geo-coding
 	if os.Getenv("bing_api_key") != "" {
-		Server.BingApiKey = os.Getenv("bing_api_key")
+		me.BingApiKey = os.Getenv("bing_api_key")
 	}
 
 	//init DB
-	Server.DB, err = gorm.Open(sqlite.Open(iPath+Server.DBName), Server.DBConfig)
+	me.DB, err = gorm.Open(sqlite.Open(iPath+me.DBName), me.DBConfig)
+
+	InitCatalogDB(me.Mode)
+	InitLocationDB(me.Mode)
+	InitRequirementDB(me.Mode)
+	InitOrgaDB(me.Mode)
+	InitCalendarDB(me.Mode)
+	InitResourceDB(me.Mode)
+	InitOrderDB(me.Mode)
+	InitAppointmentDB(me.Mode)
+
 	return
 }

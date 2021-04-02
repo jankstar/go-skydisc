@@ -24,7 +24,6 @@ type DataRequirement struct {
 func InitRequirementDB(iMode int) error {
 
 	//Data
-
 	Server.DB.AutoMigrate(&DataRequirement{})
 
 	if iMode == 1 {

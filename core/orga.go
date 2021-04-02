@@ -13,12 +13,13 @@ import (
 //* Address, geo-coordinates for starting point
 //* Capacities per qualification
 type DataServiceArea struct {
-	ID          string `json:"id" gorm:"primaryKey"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	Name        string            `json:"name"`
-	Location    TLocation         `json:"location" gorm:"embedded"`
-	Requirement []DataRequirement `json:"requirement" gorm:"foreignKey:ServiceAreaRef"`
+	ID           string `json:"id" gorm:"primaryKey"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	Name         string             `json:"name"`
+	Location     TLocation          `json:"location" gorm:"embedded"`
+	Requirement  []DataRequirement  `json:"requirement" gorm:"foreignKey:ServiceAreaRef"`
+	PostCodeArea []DataPostCodeArea `json:"post_code_area" gorm:"foreignKey:ServiceAreaRef"`
 }
 
 func InitOrgaDB(iMode int) error {

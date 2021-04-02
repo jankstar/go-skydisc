@@ -6,6 +6,9 @@ import (
 )
 
 func TestDatOrder_GetGeoLocationFromBing(t *testing.T) {
+
+	ServerInit(1, "../")
+
 	type fields struct {
 		Location TLocation
 	}
@@ -36,7 +39,7 @@ func TestDatOrder_GetGeoLocationFromBing(t *testing.T) {
 			},
 		},
 	}
-	ServerInit(1, "../")
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			me := tt.fields.Location
