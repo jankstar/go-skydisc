@@ -16,28 +16,42 @@ type DataProjekt struct {
 	LatestEnd     time.Time `json:"latest_end"`
 }
 
+type DataOrderStatusHistory struct {
+	ID             uint `json:"id" gorm:"primaryKey; autoIncrement"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	ValidFrom      time.Time      `json:"valid_from"`
+	OrderStatusRef string         `json:"order_status_ref"`
+	OrderStatus    CatOrderStatus `json:"order_status" gorm:"foreignKey:OrderStatusRef"`
+	OrderRef       uint
+}
+
 //DatOrder - define data Order entity
 type DataOrder struct {
 	ID             uint `json:"id" gorm:"primaryKey; autoIncrement"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	Description    string          `json:"description"`
-	OrderTypeRef   string          `json:"order_type_ref"`
-	OrderType      CatOrderClass   `json:"order_type" gorm:"foreignKey:OrderTypeRef"`
-	EarliestStart  time.Time       `json:"earliest_start"`
-	LatestEnd      time.Time       `json:"latest_end"`
-	Distress       bool            `json:"distress"`
-	Priority       int             `json:"priority"`
-	ProjectRef     string          `json:"project_ref"`
-	Project        DataProjekt     `json:"project" gorm:"foreignKey:ProjectRef"`
-	Duration       time.Duration   `json:"duration"`
-	Location       TLocation       `json:"location" gorm:"embedded"`
-	ContactPerson  string          `json:"contact_person"`
-	Client         string          `json:"client"`
-	Requirement    DataRequirement `json:"requirement" gorm:"embedded"`
-	PredecessorRef uint            `json:"predecessor_ref"`
-	ServiceAreaRef string          `json:"service_area_ref"`
-	ServiceArea    DataServiceArea `json:"service_area" gorm:"foreignKey:ServiceAreaRef"`
+	Description    string                   `json:"description"`
+	OrderTypeRef   string                   `json:"order_type_ref"`
+	OrderType      CatOrderClass            `json:"order_type" gorm:"foreignKey:OrderTypeRef"`
+	OrderStatusRef string                   `json:"order_status_ref"`
+	OrderStatus    CatOrderStatus           `json:"order_status" gorm:"foreignKey:OrderStatusRef"`
+	EarliestStart  time.Time                `json:"earliest_start"`
+	LatestEnd      time.Time                `json:"latest_end"`
+	Distress       bool                     `json:"distress"`
+	Priority       int                      `json:"priority"`
+	ProjectRef     string                   `json:"project_ref"`
+	Project        DataProjekt              `json:"project" gorm:"foreignKey:ProjectRef"`
+	Duration       time.Duration            `json:"duration"`
+	Location       TLocation                `json:"location" gorm:"embedded"`
+	ContactPerson  string                   `json:"contact_person"`
+	Client         string                   `json:"client"`
+	Requirement    DataRequirement          `json:"requirement" gorm:"embedded"`
+	PredecessorRef uint                     `json:"predecessor_ref"`
+	ServiceAreaRef string                   `json:"service_area_ref"`
+	ServiceArea    DataServiceArea          `json:"service_area" gorm:"foreignKey:ServiceAreaRef"`
+	StatusHistory  []DataOrderStatusHistory `json:"atatus_history" gorm:"foreignKey:OrderRef"`
+	Appointments   []DataAppointment        `json:"appointments" gorm:"foreignKey:OrderRef"`
 }
 
 //InitOrderDB(iDB *gorm.DB) error
@@ -48,6 +62,7 @@ func InitOrderDB(iMode int) error {
 	//Data
 	Server.DB.AutoMigrate(&DataOrder{})
 	Server.DB.AutoMigrate(&DataProjekt{})
+	Server.DB.AutoMigrate(&DataOrderStatusHistory{})
 
 	if iMode == 1 {
 		//Test-Modus - Daten initialisieren

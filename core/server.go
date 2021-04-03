@@ -39,6 +39,8 @@ var (
 			"includeNeighborhood=1&include=ciso2&maxResults=%d&key=%s",
 		BingURLTimezone: "https://dev.virtualearth.net/REST/v1/TimeZone/?query=%s&key=%s",
 		BingApiKey:      "", //put api key in .env file
+		//
+		ForcastPeriod: 14,
 	}
 )
 
@@ -58,6 +60,7 @@ type TServer struct {
 	BingURLLocation  string
 	BingURLTimezone  string
 	BingApiKey       string
+	ForcastPeriod    uint
 }
 
 //externalIP determines the external IP address
@@ -132,11 +135,15 @@ func ServerInit(iMode int, iPath string) (me *TServer, err error) {
 	InitCatalogDB(me.Mode)
 	InitLocationDB(me.Mode)
 	InitRequirementDB(me.Mode)
-	InitOrgaDB(me.Mode)
 	InitCalendarDB(me.Mode)
+	InitOrgaDB(me.Mode)
+
 	InitResourceDB(me.Mode)
 	InitOrderDB(me.Mode)
 	InitAppointmentDB(me.Mode)
 
+	if iMode == 1 {
+		InitAllResourcesFromNow(me.ForcastPeriod, true)
+	}
 	return
 }

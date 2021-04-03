@@ -16,10 +16,11 @@ type DataServiceArea struct {
 	ID           string `json:"id" gorm:"primaryKey"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	Name         string             `json:"name"`
-	Location     TLocation          `json:"location" gorm:"embedded"`
-	Requirement  []DataRequirement  `json:"requirement" gorm:"foreignKey:ServiceAreaRef"`
-	PostCodeArea []DataPostCodeArea `json:"post_code_area" gorm:"foreignKey:ServiceAreaRef"`
+	Name         string               `json:"name"`
+	Location     TLocation            `json:"location" gorm:"embedded"`
+	Requirement  []DataRequirement    `json:"requirement" gorm:"foreignKey:ServiceAreaRef"`
+	PostCodeArea []DataPostCodeArea   `json:"post_code_area" gorm:"foreignKey:ServiceAreaRef"`
+	Holidays     []DataAbsencePeriods `json:"holidays" gorm:"foreignKey:ServiceAreaRef"`
 }
 
 func InitOrgaDB(iMode int) error {
@@ -30,7 +31,7 @@ func InitOrgaDB(iMode int) error {
 	if iMode == 1 {
 		//Test-Modus - Daten initialisieren
 		Server.DB.Where("id <> ''").Delete(&DataServiceArea{})
-		//lib.Server.DB.Where("id <> '' AND service_area_refer <> ''").Delete(&order.DataRequirement{})
+		Server.DB.Where("service_area_ref <> ''").Delete(&DataRequirement{})
 
 		loadTestDataOrga()
 	}
