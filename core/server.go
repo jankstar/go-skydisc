@@ -140,7 +140,7 @@ func ServerInit(iMode int, iPath string) (me *TServer, err error) {
 
 	InitResourceDB(me.Mode)
 	InitOrderDB(me.Mode)
-	InitAppointmentDB(me.Mode)
+	InitAssignmentDB(me.Mode)
 
 	if iMode == 1 {
 		InitAllResourcesFromNow(me.ForcastPeriod, true)

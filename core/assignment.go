@@ -2,7 +2,7 @@ package core
 
 import "time"
 
-type DataAppointment struct {
+type DataAssignment struct {
 	ID          uint `json:"id" gorm:"primaryKey; autoIncrement"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
@@ -18,25 +18,25 @@ type DataAppointment struct {
 	Section     CatSection   `json:"section" gorm:"foreignKey:SectionRef"`
 }
 
-func InitAppointmentDB(iMode int) error {
+func InitAssignmentDB(iMode int) error {
 
 	//Data
-	Server.DB.AutoMigrate(&DataAppointment{})
+	Server.DB.AutoMigrate(&DataAssignment{})
 
 	if iMode == 1 {
 		//Test-Modus - Daten initialisieren
-		Server.DB.Where("id <> 0").Delete(&DataAppointment{})
+		Server.DB.Where("id <> 0").Delete(&DataAssignment{})
 
-		loadTestDataAppointment()
+		loadTestDataAssignment()
 	}
 	return Server.DB.Error
 }
 
-func loadTestDataAppointment() {
+func loadTestDataAssignment() {
 
 }
 
-func ProcessAppointment(iAppoint DataAppointment) {
+func ProcessAssignment(iAppoint DataAssignment) {
 	//save appointment
 	var ltDataCapacityCalendar []DataCapacityCalendar
 	Server.DB.Create(&iAppoint)

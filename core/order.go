@@ -51,7 +51,7 @@ type DataOrder struct {
 	ServiceAreaRef string                   `json:"service_area_ref"`
 	ServiceArea    DataServiceArea          `json:"service_area" gorm:"foreignKey:ServiceAreaRef"`
 	StatusHistory  []DataOrderStatusHistory `json:"atatus_history" gorm:"foreignKey:OrderRef"`
-	Appointments   []DataAppointment        `json:"appointments" gorm:"foreignKey:OrderRef"`
+	Assignment     []DataAssignment         `json:"appointments" gorm:"foreignKey:OrderRef"`
 }
 
 //InitOrderDB(iDB *gorm.DB) error

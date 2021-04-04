@@ -20,7 +20,7 @@ type DataResource struct {
 	Calendar         DataWorkingTimeCalendar `json:"calendar" gorm:"foreignKey:CalendarRef"`
 	CapacityCalendar []DataCapacityCalendar  `json:"capacity_calendar" gorm:"foreignKey:RecourceRef"`
 	AbsencePeriods   []DataAbsencePeriods    `json:"absence_periods" gorm:"foreignKey:RecourceRef"`
-	Appointments     []DataAppointment       `json:"appointments" gorm:"foreignKey:RecourceRef"`
+	//Assignment       []DataAssignment        `json:"assignment" gorm:"-"`
 }
 
 type DataCapacityCalendar struct {
@@ -120,7 +120,7 @@ func (me *DataResource) isInitial() bool {
 //LoadValidCalender load the valid calender
 func (me *DataResource) LoadValidCalender() {
 	if me.CalendarRef != "" {
-		Server.DB.Where("id = ? AND valid_from < ?", me.CalendarRef, time.Now()).Order("valid_from desc").First(me.Calendar)
+		Server.DB.Where(" id = ? AND valid_from <= ? ", me.CalendarRef, time.Now()).Order(" `valid_from` desc ").First(&me.Calendar)
 	}
 }
 
@@ -141,7 +141,9 @@ func (me *DataResource) BuildCapacityCalendarRange(iStart time.Time, iCount uint
 				lRemainderCapCal = append(lRemainderCapCal, item)
 			}
 		}
-		Server.DB.Delete(&lDelCapCal)
+		if len(lDelCapCal) > 0 {
+			Server.DB.Delete(&lDelCapCal)
+		}
 		me.CapacityCalendar = append([]DataCapacityCalendar{}, lRemainderCapCal...)
 	}
 
@@ -155,27 +157,32 @@ func (me *DataResource) BuildCapacityCalendarRange(iStart time.Time, iCount uint
 
 //BuildCapacityCalendar
 func (me *DataResource) BuildCapacityCalendarByDay(iDay time.Time, iReBuild bool) {
-	var lDelCapCal []DataCapacityCalendar
-	var lRemainderCapCal []DataCapacityCalendar
-	justDefine := false
-	for _, item := range me.CapacityCalendar {
-		lStr := Time2Date(iDay)
-		if item.Date == lStr {
-			justDefine = true
-			if iReBuild == true {
-				lDelCapCal = append(lDelCapCal, item)
-			} else {
-				break
-			}
-		} else {
-			lRemainderCapCal = append(lRemainderCapCal, item)
-		}
+	if me.Calendar.ID == "" {
+		me.LoadValidCalender()
 	}
+	justDefine := false
+	{
+		var lDelCapCal []DataCapacityCalendar
+		var lRemainderCapCal []DataCapacityCalendar
+		for _, item := range me.CapacityCalendar {
+			lStr := Time2Date(iDay)
+			if item.Date == lStr {
+				justDefine = true
+				if iReBuild == true {
+					lDelCapCal = append(lDelCapCal, item)
+				} else {
+					break
+				}
+			} else {
+				lRemainderCapCal = append(lRemainderCapCal, item)
+			}
+		}
 
-	//for rebuild == true delete all entries for the date
-	if iReBuild == true && len(lDelCapCal) > 0 {
-		Server.DB.Delete(&lDelCapCal)
-		me.CapacityCalendar = append([]DataCapacityCalendar{}, lRemainderCapCal...)
+		//for rebuild == true delete all entries for the date
+		if iReBuild == true && len(lDelCapCal) > 0 {
+			Server.DB.Delete(&lDelCapCal)
+			me.CapacityCalendar = append([]DataCapacityCalendar{}, lRemainderCapCal...)
+		}
 	}
 
 	if justDefine == false || iReBuild == true {
@@ -239,7 +246,7 @@ func (me *DataResource) MergeAbsencePeriodsByDay(iDay time.Time, iStart time.Tim
 
 		if absenceStart_LE_Start && absenceEnd_GE_End {
 			// kompletter Bereich
-			newAppointment := DataAppointment{
+			newAppointment := DataAssignment{
 				Start:       iStart,
 				End:         iEnd,
 				TimeFix:     true,
@@ -248,8 +255,8 @@ func (me *DataResource) MergeAbsencePeriodsByDay(iDay time.Time, iStart time.Tim
 				ResourceRef: me.ID,
 				SectionRef:  3,
 			}
-			ProcessAppointment(newAppointment)
-			me.Appointments = append(me.Appointments, newAppointment)
+			ProcessAssignment(newAppointment)
+			//me.Assignment = append(me.Assignment, newAppointment)
 
 		}
 

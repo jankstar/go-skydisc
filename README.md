@@ -1,15 +1,16 @@
 # go-skydisc
 Optimization of operations over resources and time
 
+## Data structure
 The following elements are managed
 
-Service area
+### Service area
 describes e.g. a branch office, temporal allocation of certain resources
 * Designation
 * Address, geo-coordinates for starting point
 * Capacities per qualification
 
-Order
+### Order
 Order with the following properties
 * class of service (e.g. unplanned ticket, planned maintenance)
 * describes a service
@@ -22,23 +23,32 @@ Order with the following properties
 * Duration
 * Service area (e.g. branch office)
 
-Resources
+### Resources
 Employees, machines or equipment
 * Name, designation, telephone, email
 * Qualification
 * Working time, absence, calendar
+* capacity calender
 * Service area (e.g. branch)
 * Substitution
 
-Assignment/Appointment
-a resource can be booked for an order with one or more appointments
+### Assignment/Appointment
+a resource can be booked for an order with one or more Assignment
 * Plan: start, end, duration
 * Actual: Start, end, duration
 * set up time, arrival time
 * Probability of realization
 * necessary predecessors
 
-Catalogs:
+### Calendar
+defines the work calendar and calculates the capacities,
+takes into account absences
+* working time calendar
+* absencs periods
+* even, odd week
+
+### Catalogs:
 * Trade and qualifications 
-* 
+* order class and status
+* section for assignment
  
