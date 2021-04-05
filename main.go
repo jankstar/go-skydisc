@@ -17,7 +17,7 @@ var (
 func main() {
 	var err error
 	//init Server and DB
-	goServer, err = core.ServerInit(1, "")
+	goServer, err = core.ServerInit(0, "")
 	if err != nil {
 		fmt.Println(err)
 		return

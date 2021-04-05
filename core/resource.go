@@ -20,23 +20,26 @@ type DataResource struct {
 	Calendar         DataWorkingTimeCalendar `json:"calendar" gorm:"foreignKey:CalendarRef"`
 	CapacityCalendar []DataCapacityCalendar  `json:"capacity_calendar" gorm:"foreignKey:RecourceRef"`
 	AbsencePeriods   []DataAbsencePeriods    `json:"absence_periods" gorm:"foreignKey:RecourceRef"`
-	//Assignment       []DataAssignment        `json:"assignment" gorm:"-"`
+	Assignment       []DataAssignment        `json:"assignment" gorm:"-"`
 }
 
 type DataCapacityCalendar struct {
-	ID               uint `json:"id" gorm:"primaryKey; autoIncrement"`
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	RecourceRef      string           `json:"recource_ref" gorm:"index"`
-	Date             string           `json:"date" gorm:"index"`
-	QualificationRef string           `json:"qualification_ref"`
-	Qualification    CatQualification `json:"qualification" gorm:"foreignKey:QualificationRef"`
-	SectionRef       uint             `json:"section_ref" gorm:"index"`
-	Section          CatSection       `json:"section" gorm:"foreignKey:SectionRef"`
-	StartTime        time.Time        `json:"start_time"`
-	EndTime          time.Time        `json:"end_time"`
-	DurationTarget   time.Duration    `json:"DurationTarget"`
-	DurationRest     time.Duration    `json:"DurationRest"`
+	ID             uint `json:"id" gorm:"primaryKey; autoIncrement"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	RecourceRef    string          `json:"recource_ref" gorm:"index"`
+	Resource       DataResource    `json:"resource" gorm:"index; foreignKey:RecourceRef"`
+	ServiceAreaRef string          `json:"service_area_ref" gorm:"index"`
+	ServiceArea    DataServiceArea `json:"service_area" gorm:"foreignKey:ServiceAreaRef"`
+	Date           string          `json:"date" gorm:"index"`
+	SectionRef     uint            `json:"section_ref" gorm:"index"`
+	Section        CatSection      `json:"section" gorm:"foreignKey:SectionRef"`
+	StartTime      time.Time       `json:"start_time"`
+	EndTime        time.Time       `json:"end_time"`
+	DurationTarget time.Duration   `json:"duration_target"`
+	DurationRest   time.Duration   `json:"duration_rest"`
+	LargestPeriod  time.Duration   `json:"largest_period"`
+	StartOfTheDay  bool            `json:"start_of_the_day"`
 }
 
 func InitResourceDB(iMode int) error {
@@ -90,8 +93,9 @@ func GetResourceByID(iID string) (eResource DataResource) {
 	}
 	//read CapazityCalendar and AbsencePeriods
 	eResource.LoadValidCalender()
-	Server.DB.Where(" recource_ref = ? ", eResource.ID).Find(&eResource.CapacityCalendar)
-	Server.DB.Where(" recource_ref = ? ", eResource.ID).Find(&eResource.AbsencePeriods)
+	eResource.LoadCapacityCalendar()
+	eResource.LoadAbsencePeriods()
+	eResource.LoadAssignment()
 	return
 }
 
@@ -115,6 +119,18 @@ func InitAllResourcesFromNow(iCount uint, iDelete bool) {
 //isInitial() check Resource
 func (me *DataResource) isInitial() bool {
 	return (me.ID == "")
+}
+
+func (me *DataResource) LoadAssignment() {
+	Server.DB.Where(" recource_ref = ? ", me.ID).Find(&me.Assignment)
+}
+
+func (me *DataResource) LoadAbsencePeriods() {
+	Server.DB.Where(" recource_ref = ? ", me.ID).Find(&me.AbsencePeriods)
+}
+
+func (me *DataResource) LoadCapacityCalendar() {
+	Server.DB.Where(" recource_ref = ? ", me.ID).Find(&me.CapacityCalendar)
 }
 
 //LoadValidCalender load the valid calender
@@ -143,8 +159,8 @@ func (me *DataResource) BuildCapacityCalendarRange(iStart time.Time, iCount uint
 		}
 		if len(lDelCapCal) > 0 {
 			Server.DB.Delete(&lDelCapCal)
+			me.CapacityCalendar = append([]DataCapacityCalendar{}, lRemainderCapCal...)
 		}
-		me.CapacityCalendar = append([]DataCapacityCalendar{}, lRemainderCapCal...)
 	}
 
 	lDate := iStart
@@ -158,7 +174,7 @@ func (me *DataResource) BuildCapacityCalendarRange(iStart time.Time, iCount uint
 //BuildCapacityCalendar
 func (me *DataResource) BuildCapacityCalendarByDay(iDay time.Time, iReBuild bool) {
 	if me.Calendar.ID == "" {
-		me.LoadValidCalender()
+		return //we need calendar
 	}
 	justDefine := false
 	{
@@ -188,63 +204,78 @@ func (me *DataResource) BuildCapacityCalendarByDay(iDay time.Time, iReBuild bool
 	if justDefine == false || iReBuild == true {
 		//define new capacity
 		lMorningDuration, lAfternoonDuration,
-			lStartMorning, lEndMorning, lStartAfternoon, lEndAfternoon := me.Calendar.GetDurationByDay(iDay)
-		for _, itemQuali := range me.Qualification {
-			newCapacityMorning := &DataCapacityCalendar{
-				RecourceRef:      me.ID,
-				Date:             Time2Date(iDay),
-				QualificationRef: itemQuali.QualificationRef,
-				SectionRef:       1,
-				StartTime:        lStartMorning,
-				EndTime:          lEndMorning,
-				DurationTarget:   lMorningDuration,
-				DurationRest:     lMorningDuration,
+			lStartMorning, lEndMorning, lServiceAreaMorning,
+			lStartAfternoon, lEndAfternoon, lServiceAreaAftermoon := me.Calendar.GetDurationByDay(iDay)
+
+		newCapacityMorning := DataCapacityCalendar{
+			RecourceRef:    me.ID,
+			ServiceAreaRef: lServiceAreaMorning,
+			Date:           Time2Date(iDay),
+			SectionRef:     1,
+			StartTime:      lStartMorning,
+			EndTime:        lEndMorning,
+			DurationTarget: lMorningDuration,
+			DurationRest:   lMorningDuration,
+			LargestPeriod:  lMorningDuration,
+			StartOfTheDay:  true,
+		}
+		newCapacityAfternoon := DataCapacityCalendar{
+			RecourceRef:    me.ID,
+			ServiceAreaRef: lServiceAreaAftermoon,
+			Date:           Time2Date(iDay),
+			SectionRef:     2,
+			StartTime:      lStartAfternoon,
+			EndTime:        lEndAfternoon,
+			DurationTarget: lAfternoonDuration,
+			DurationRest:   lAfternoonDuration,
+			LargestPeriod:  lAfternoonDuration,
+		}
+
+		newCapacityDay := DataCapacityCalendar{
+			RecourceRef:    me.ID,
+			ServiceAreaRef: lServiceAreaMorning,
+			Date:           Time2Date(iDay),
+			SectionRef:     3,
+			StartTime:      GetEarliestDate(lStartMorning, lStartAfternoon),
+			EndTime:        GetLatestDate(lEndMorning, lEndAfternoon),
+			DurationTarget: lMorningDuration + lAfternoonDuration,
+			DurationRest:   lMorningDuration + lAfternoonDuration,
+		}
+		if newCapacityMorning.LargestPeriod > newCapacityAfternoon.LargestPeriod {
+			newCapacityDay.LargestPeriod = newCapacityMorning.LargestPeriod
+		} else {
+			newCapacityDay.LargestPeriod = newCapacityAfternoon.LargestPeriod
+		}
+
+		//create Date if duration not null
+		if newCapacityDay.DurationTarget != 0 {
+			if lServiceAreaMorning == lServiceAreaAftermoon {
+				//Day-entity only if one Service Area per Day
+				Server.DB.Create(&newCapacityDay)
 			}
-			newCapacityAfternoon := &DataCapacityCalendar{
-				RecourceRef:      me.ID,
-				Date:             Time2Date(iDay),
-				QualificationRef: itemQuali.QualificationRef,
-				SectionRef:       2,
-				StartTime:        lStartAfternoon,
-				EndTime:          lEndAfternoon,
-				DurationTarget:   lAfternoonDuration,
-				DurationRest:     lAfternoonDuration,
+			if newCapacityMorning.DurationTarget != 0 {
+				Server.DB.Create(&newCapacityMorning)
 			}
-			newCapacityDay := &DataCapacityCalendar{
-				RecourceRef:      me.ID,
-				Date:             Time2Date(iDay),
-				QualificationRef: itemQuali.QualificationRef,
-				SectionRef:       3,
-				StartTime:        lStartMorning,
-				EndTime:          lEndAfternoon,
-				DurationTarget:   lMorningDuration + lAfternoonDuration,
-				DurationRest:     lMorningDuration + lAfternoonDuration,
+			if newCapacityAfternoon.DurationTarget != 0 {
+				Server.DB.Create(&newCapacityAfternoon)
 			}
 
-			//create Date if duration not null
-			if newCapacityDay.DurationTarget != 0 {
-				Server.DB.Create(&newCapacityDay)
-				if newCapacityMorning.DurationTarget != 0 {
-					Server.DB.Create(&newCapacityMorning)
-				}
-				if newCapacityAfternoon.DurationTarget != 0 {
-					Server.DB.Create(&newCapacityAfternoon)
-				}
-				//Consider absences
-				me.MergeAbsencePeriodsByDay(iDay, newCapacityDay.StartTime, newCapacityDay.EndTime)
-			}
+			//Consider absences if capacity compute
+			me.MergeAbsencePeriodsByDay(iDay, newCapacityDay.StartTime, newCapacityDay.EndTime)
+
+		} else {
+			//no cpacity for all qualification
+
 		}
+
 	}
 }
 
 //MergeAbsencePeriodsByDay consider absences by day
 func (me *DataResource) MergeAbsencePeriodsByDay(iDay time.Time, iStart time.Time, iEnd time.Time) {
 	for _, element := range me.AbsencePeriods {
-		//
-		absenceStart_LE_Start := element.Start.Before(iStart) == true || element.Start.Equal(iStart) == true
-		absenceEnd_GE_End := iEnd.Before(element.End) == true || element.End.Equal(iEnd) == true
-
-		if absenceStart_LE_Start && absenceEnd_GE_End {
+		//complete absence periode
+		if CompareT(element.Start, "<=", iStart) && CompareT(element.End, ">=", iEnd) {
 			// kompletter Bereich
 			newAppointment := DataAssignment{
 				Start:       iStart,
@@ -256,7 +287,7 @@ func (me *DataResource) MergeAbsencePeriodsByDay(iDay time.Time, iStart time.Tim
 				SectionRef:  3,
 			}
 			ProcessAssignment(newAppointment)
-			//me.Assignment = append(me.Assignment, newAppointment)
+			me.Assignment = append(me.Assignment, newAppointment)
 
 		}
 

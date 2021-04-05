@@ -36,17 +36,17 @@ func loadTestDataAssignment() {
 
 }
 
-func ProcessAssignment(iAppoint DataAssignment) {
+func ProcessAssignment(iAssignement DataAssignment) {
 	//save appointment
 	var ltDataCapacityCalendar []DataCapacityCalendar
-	Server.DB.Create(&iAppoint)
+	Server.DB.Create(&iAssignement)
 
-	lDuration := iAppoint.End.Sub(iAppoint.Start)
+	lDuration := iAssignement.End.Sub(iAssignement.Start)
 
-	//Reduce capacity of the resource
+	//Reduce capacity of the resource for all qualification
 	Server.DB.Where(
 		"recource_ref = ? AND date = ?",
-		iAppoint.OrderRef, Time2Date(iAppoint.Start)).Find(&ltDataCapacityCalendar)
+		iAssignement.ResourceRef, Time2Date(iAssignement.Start)).Find(&ltDataCapacityCalendar)
 	var Duration3 struct {
 		value time.Duration
 		valid bool
@@ -63,7 +63,8 @@ func ProcessAssignment(iAppoint DataAssignment) {
 	}
 
 	//first day and morning
-	for _, element := range ltDataCapacityCalendar {
+	for index := range ltDataCapacityCalendar {
+		element := &ltDataCapacityCalendar[index]
 		//day
 		if element.SectionRef == 3 {
 			if Duration3.valid != true {
@@ -96,6 +97,10 @@ func ProcessAssignment(iAppoint DataAssignment) {
 					Duration1.valid = true
 
 				}
+				if element.StartOfTheDay && CompareT(iAssignement.Start, "<=", element.StartTime) {
+					//if the assignement is start of the day, switch it off
+					element.StartOfTheDay = false
+				}
 			} else {
 				element.DurationRest = Duration1.value
 			}
@@ -103,28 +108,29 @@ func ProcessAssignment(iAppoint DataAssignment) {
 	}
 
 	//afternoon
-	for _, element := range ltDataCapacityCalendar {
-		if element.SectionRef == 3 {
-			if Duration3.valid != true {
+	for index := range ltDataCapacityCalendar {
+		element := &ltDataCapacityCalendar[index]
+		if element.SectionRef == 2 {
+			if Duration2.valid != true {
 				if Duration1.valid == false {
 					//no morning found
 					if element.DurationRest > lDuration {
 						element.DurationRest = element.DurationRest - lDuration
-						Duration3.value = element.DurationRest
-						Duration3.valid = true
+						Duration2.value = element.DurationRest
+						Duration2.valid = true
 
 					} else {
 
 						element.DurationRest = 0
-						Duration3.value = element.DurationRest
-						Duration3.valid = true
+						Duration2.value = element.DurationRest
+						Duration2.valid = true
 
 					}
 				} else {
-					if element.DurationRest > Duration2.rest {
-						element.DurationRest = element.DurationRest - Duration2.rest
-						Duration3.value = element.DurationRest
-						Duration3.valid = true
+					if element.DurationRest > Duration1.rest {
+						element.DurationRest = element.DurationRest - Duration1.rest
+						Duration2.value = element.DurationRest
+						Duration2.valid = true
 
 					} else {
 

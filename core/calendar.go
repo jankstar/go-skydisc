@@ -120,6 +120,51 @@ func Time2Time(iTime time.Time) string {
 	return iTime.Format("15:04:05")
 }
 
+func GetEarliestDate(iA time.Time, iB time.Time) time.Time {
+	if iA.IsZero() {
+		return iB
+	}
+	if iB.IsZero() {
+		return iA
+	}
+	if iA.Before(iB) {
+		return iA
+	}
+	return iB
+}
+
+func GetLatestDate(iA time.Time, iB time.Time) time.Time {
+	if iA.IsZero() {
+		return iB
+	}
+	if iB.IsZero() {
+		return iA
+	}
+	if iA.After(iB) {
+		return iA
+	}
+	return iB
+}
+
+//CompareT compare time iA and iB with <,>,<=,>=,==,!=
+func CompareT(iA time.Time, iCP string, iB time.Time) bool {
+	switch iCP {
+	case "<":
+		return iA.Before(iB)
+	case "<=":
+		return iA.Before(iB) || iA.Equal(iB)
+	case "==":
+		return iA.Equal(iB)
+	case "!=":
+		return !(iA.Equal(iB))
+	case ">":
+		return iA.After(iB)
+	case ">=":
+		return iA.After(iB) || iA.Equal(iB)
+	}
+	return false
+}
+
 //isInitial checks if the calendar is still initial
 func (me *TWorkingTimeWeek) isInitial() bool {
 
@@ -134,8 +179,9 @@ func (me *TWorkingTimeWeek) isInitial() bool {
 
 //GetDrationByDay provides the duration for one day
 func (me *DataWorkingTimeCalendar) GetDurationByDay(iDay time.Time) (eMorningDuration time.Duration, eAfternoonDuration time.Duration,
-	eStartMorning time.Time, eEndMoning time.Time, eStartAfternoon time.Time, eEndAfternoon time.Time) {
-	if me.ValidFrom.After(time.Now()) != true {
+	eStartMorning time.Time, eEndMoning time.Time, eServiceAreaMorning string,
+	eStartAfternoon time.Time, eEndAfternoon time.Time, eServiceAreaAfternoon string) {
+	if me.ValidFrom.After(time.Now()) != true && me.ID != "" {
 		var myWeek *TWorkingTimeWeek
 		_, lWeek := time.Now().ISOWeek()
 		lWeekRemainder := lWeek % 2
@@ -150,44 +196,58 @@ func (me *DataWorkingTimeCalendar) GetDurationByDay(iDay time.Time) (eMorningDur
 		case time.Sunday:
 			eStartMorning, _ = GetDayTime(iDay, myWeek.Sunday.StartMorning)
 			eEndMoning, _ = GetDayTime(iDay, myWeek.Sunday.EndMoning)
+			eServiceAreaMorning = myWeek.Sunday.ServiceAreaMorningRef
 			eStartAfternoon, _ = GetDayTime(iDay, myWeek.Sunday.StartAfternoon)
 			eEndAfternoon, _ = GetDayTime(iDay, myWeek.Sunday.EndAfternoon)
+			eServiceAreaAfternoon = myWeek.Sunday.ServiceAreaMorningRef
 
 		case time.Monday:
 			eStartMorning, _ = GetDayTime(iDay, myWeek.Monday.StartMorning)
 			eEndMoning, _ = GetDayTime(iDay, myWeek.Monday.EndMoning)
+			eServiceAreaMorning = myWeek.Monday.ServiceAreaMorningRef
 			eStartAfternoon, _ = GetDayTime(iDay, myWeek.Monday.StartAfternoon)
 			eEndAfternoon, _ = GetDayTime(iDay, myWeek.Monday.EndAfternoon)
+			eServiceAreaAfternoon = myWeek.Monday.ServiceAreaMorningRef
 
 		case time.Tuesday:
 			eStartMorning, _ = GetDayTime(iDay, myWeek.Tuesday.StartMorning)
 			eEndMoning, _ = GetDayTime(iDay, myWeek.Tuesday.EndMoning)
+			eServiceAreaMorning = myWeek.Tuesday.ServiceAreaMorningRef
 			eStartAfternoon, _ = GetDayTime(iDay, myWeek.Tuesday.StartAfternoon)
 			eEndAfternoon, _ = GetDayTime(iDay, myWeek.Tuesday.EndAfternoon)
+			eServiceAreaAfternoon = myWeek.Tuesday.ServiceAreaMorningRef
 
 		case time.Wednesday:
 			eStartMorning, _ = GetDayTime(iDay, myWeek.Wednesday.StartMorning)
 			eEndMoning, _ = GetDayTime(iDay, myWeek.Wednesday.EndMoning)
+			eServiceAreaMorning = myWeek.Wednesday.ServiceAreaMorningRef
 			eStartAfternoon, _ = GetDayTime(iDay, myWeek.Wednesday.StartAfternoon)
 			eEndAfternoon, _ = GetDayTime(iDay, myWeek.Wednesday.EndAfternoon)
+			eServiceAreaAfternoon = myWeek.Wednesday.ServiceAreaMorningRef
 
 		case time.Thursday:
 			eStartMorning, _ = GetDayTime(iDay, myWeek.Thursday.StartMorning)
 			eEndMoning, _ = GetDayTime(iDay, myWeek.Thursday.EndMoning)
+			eServiceAreaMorning = myWeek.Thursday.ServiceAreaMorningRef
 			eStartAfternoon, _ = GetDayTime(iDay, myWeek.Thursday.StartAfternoon)
 			eEndAfternoon, _ = GetDayTime(iDay, myWeek.Thursday.EndAfternoon)
+			eServiceAreaAfternoon = myWeek.Thursday.ServiceAreaMorningRef
 
 		case time.Friday:
 			eStartMorning, _ = GetDayTime(iDay, myWeek.Friday.StartMorning)
 			eEndMoning, _ = GetDayTime(iDay, myWeek.Friday.EndMoning)
+			eServiceAreaMorning = myWeek.Friday.ServiceAreaMorningRef
 			eStartAfternoon, _ = GetDayTime(iDay, myWeek.Friday.StartAfternoon)
 			eEndAfternoon, _ = GetDayTime(iDay, myWeek.Friday.EndAfternoon)
+			eServiceAreaAfternoon = myWeek.Friday.ServiceAreaMorningRef
 
 		case time.Saturday:
 			eStartMorning, _ = GetDayTime(iDay, myWeek.Saturday.StartMorning)
 			eEndMoning, _ = GetDayTime(iDay, myWeek.Saturday.EndMoning)
+			eServiceAreaMorning = myWeek.Saturday.ServiceAreaMorningRef
 			eStartAfternoon, _ = GetDayTime(iDay, myWeek.Saturday.StartAfternoon)
 			eEndAfternoon, _ = GetDayTime(iDay, myWeek.Saturday.EndAfternoon)
+			eServiceAreaAfternoon = myWeek.Saturday.ServiceAreaMorningRef
 
 		}
 

@@ -99,6 +99,11 @@ func loadTestDataOrder() {
 	fmt.Println("loadTestData: in DB verbucht")
 }
 
+func GetOrderByID(iID uint) (eOrder DataOrder) {
+	Server.DB.Where("id = ?", iID).First(&eOrder)
+	return
+}
+
 //************************************
 //Save(iDB *gorm.DB) (err error)
 // save der Order itself
@@ -110,4 +115,27 @@ func (me *DataOrder) Save() (err error) {
 //Check() (err error)
 func (me *DataOrder) Check() (err error) {
 	return nil
+}
+
+//SearchCapacity delivers valid capacities for iCount Days from now
+func (me *DataOrder) SearchCapacity(iCount uint) (eList []DataCapacityCalendar) {
+	//
+	if iCount == 0 {
+		iCount = Server.ForcastPeriod
+	}
+
+	//calculate start and end date for searching
+	var lStartTime time.Time
+	lStartTime = time.Now() //00:00:00
+	time.Date(lStartTime.Year(), lStartTime.Month(), lStartTime.Day(), 0, 0, 0, 0, time.Local)
+	if CompareT(lStartTime, "<=", me.EarliestStart) {
+		lStartTime = me.EarliestStart
+	}
+	lStart := Time2Date(lStartTime)
+	lEndTime := GetEarliestDate(time.Now().Add(time.Hour*24*time.Duration(iCount)), me.LatestEnd)
+	lEnd := Time2Date(lEndTime)
+	Server.DB.Where("service_area_ref = ? AND recource_ref = ( SELECT resource_ref FROM 'data_requirement' WHERE qualification_ref = ? AND resource_ref <> '' ) AND date >= ? AND date <= ? AND duration_rest > 0",
+		me.ServiceAreaRef, me.Requirement.QualificationRef, lStart, lEnd).Preload("Resource").Preload("Section").Find(&eList)
+
+	return
 }

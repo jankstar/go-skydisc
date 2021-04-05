@@ -6,7 +6,7 @@ import (
 )
 
 func TestInitResourceDB(t *testing.T) {
-	ServerInit(1, "../")
+	ServerInit(0, "../")
 
 	type args struct {
 		iMode int
@@ -37,6 +37,7 @@ func TestInitResourceDB(t *testing.T) {
 func TestDataResource_BuildCapacityCalendarAtDay(t *testing.T) {
 	ServerInit(0, "../")
 	lTestResource := GetResourceByID("SCHMIDTK")
+	lTime, _ := time.Parse(time.RFC3339, "2021-04-05T08:10:12Z")
 	type fields struct {
 		ME DataResource
 	}
@@ -56,6 +57,15 @@ func TestDataResource_BuildCapacityCalendarAtDay(t *testing.T) {
 			},
 			args: args{
 				iDate:    time.Now(),
+				iReBuild: true,
+			},
+		}, {
+			name: "Test BuildCapacityCalendar for Object resource with absence",
+			fields: fields{
+				ME: lTestResource,
+			},
+			args: args{
+				iDate:    lTime,
 				iReBuild: true,
 			},
 		},
