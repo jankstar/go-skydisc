@@ -1,17 +1,20 @@
-<!--index.html-->
+<!--order.html-->
 <!DOCTYPE html>
-<html id="index">
+<html id="order">
 <!--
     WARNING! Make sure that you match all Quasar related
     tags to the same version! (Below it's "@2.0.0-beta.11")
   -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+
+
 <head>
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
     type="text/css">
-  <link href="https://cdn.jsdelivr.net/npm/quasar@1.15.8/dist/quasar.min.css" rel="stylesheet" type="text/css">
+  <link href="https://cdn.jsdelivr.net/npm/quasar@1.15.10/dist/quasar.min.css" rel="stylesheet" type="text/css">
+
 <!-- Notice lang="sass" -->
 <style lang="sass">
   .q-pa-xs {
@@ -24,12 +27,13 @@
     height: 32px;
     padding: 3px 8px;
   }
-</style>    
+</style>
+
 </head>
 
 <body>
-  <div id="q-app" class="q-pa-xs" >
-    <q-layout view="lHh Lpr lFf" class="bg-white" container style="height: 960px; ">
+  <div id="q-app" class="q-pa-xs ">
+    <q-layout view="lHh Lpr lFf" class="bg-white" container style="height: 960px">
       <q-header elevated>
         <q-toolbar>
           <q-btn flat dense round @click="drawerOpen = !drawerOpen" aria-label="Menu" icon="menu" ></q-btn>
@@ -71,41 +75,39 @@
       <q-page-container>
         <!--router-view /-->
 
-          <q-page padding>
-          <!-- Tablle  -->
-          <q-table style="height: 850px; " :data="tableData"  row-key="id" :visible-columns="visibleColumns" :columns="columns"
-            no-data-label="I didn't find anything" :separator="separator" :loading="loading" :filter="filter"
-            selection="single" :selected.sync="selected" virtual-scroll :rows-per-page-options="[0]">
-            <template v-slot:top-left>
-              <q-text>{{GetLabel(tableTitle)}}</q-text>
-              <q-btn icon-right="read_more" @click="onDetail()" flat color="primary">
-                <q-tooltip>Detail</q-tooltip>
-              </q-btn>
-            </template>
+        <q-page padding>
+          <q-btn icon-right="format_indent_decrease" @click="onGoTo('/')" flat color="primary">
+            <q-tooltip>Tabelle</q-tooltip>
+          </q-btn>
 
-            <template v-slot:top-right="props">
+          <div :v-if="order.id != ''"  class="fit row " style="height: 100%;">
 
-              <q-input dense debounce="300" v-model="filter" placeholder="Filter" outlined clearable flat
-                class="q-ml-sm">
-                <template v-slot:append>
-                  <q-icon name="filter_alt"></q-icon>
-                </template>
-              </q-input>
+            <q-card style="width: 100%;height: 100%;">
+              <q-card-section>
 
-              <q-space></q-space>
+                <q-form @submit="onSubmit" class="q-gutter-xs" style="height: 100%;">
+                  <div class="q-gutter-xs row "> 
+                    <q-input v-model="order['id']" :label="GetLabel('id')" readonly></q-input>
+                    <q-input v-model="order['description']" :label="GetLabel('description')" style="width: 300px"></q-input>
+                    <q-select v-model="order['order_type_ref']" 
+                      :options="CatOrderClass" option-value="class" option-label="name" emit-value map-options
+                      :label="GetLabel('order_type_ref')" style="width: 150px" readonly></q-select>    
+                    <q-select v-model="order['order_status_ref']" 
+                      :options="CatOrderStatus" option-value="status" option-label="name" emit-value map-options
+                      :label="GetLabel('order_status_ref')" style="width: 150px" readonly></q-select>     
+                  </div>
 
-              <q-space></q-space>
+                  <div>
+                    <q-btn label="Submit" type="submit" color="primary" />
+                  </div>
+                </q-form>
 
-              <q-btn icon-right="archive" no-caps @click="exportTable" flat class="q-ml-sm" color="primary">
-                <q-tooltip>CSV Export</q-tooltip>
-              </q-btn>
-              <q-btn :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'" flat round dense
-                @click="props.toggleFullscreen" class="q-ml-sm" color="primary"></q-btn>
+              </q-card-section>
+            </q-card>
+            
+           </div>  
 
-            </template>
-          </q-table>
         </q-page>
-      </div>
 
       </q-page-container>
     </q-layout>
@@ -114,8 +116,8 @@
   <!-- Add the following at the end of your body tag -->
 
   <script src="https://cdn.jsdelivr.net/npm/vue@^2.0.0/dist/vue.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.8/dist/quasar.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.8/dist/lang/de.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.10/dist/quasar.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.10/dist/lang/de.umd.min.js"></script>
   <!--script src="https://cdn.jsdelivr.net/npm/flat@5.0.2/index.min.js"></script-->
   <script src="/vendor/flat.index.min.js"></script>
   <script src="/vendor/go-skydisc.js"></script>
@@ -131,6 +133,7 @@
       //
       data: function () {
         return {
+          order: <(.order)>,
           drawerOpen: false,
           tableData: [],
           tableTitle: "",
@@ -144,20 +147,24 @@
           visibleColumns: [],
           columns: [],
           selected: [],
+          CatOrderClass: [],
+          CatOrderStatus: [],
         }
       },
       computed: {
       },
       //
       created() {
-        this.tableTitle = "Order";
-        this.getDataFromApi("DataOrder", "?q=" + this.seach_field + ":" + this.search.replaceAll('%', '*') +
-          "&sort=earliest_start%20desc&rows=" + this.maxline, "tableData");
-       
+        //this.tableTitle = "Capacity";
+        //this.seach_field = "id";
+        //this.search = this.order.id.toString();
+        //this.getDataFromApi("SearchCapacity", "?q=" + this.seach_field + ":" + this.search, "tableData");
+        this.getDataFromApi("CatOrderClass", "?Q=class:%","CatOrderClass");
+        this.getDataFromApi("CatOrderStatus", "?Q=status:%","CatOrderStatus");
       },
       //
       mounted() {
-        
+
       },
       //
       methods: {
@@ -167,22 +174,17 @@
           GetDataFromApi(this,iPath, iQuery, cData)
         },
 
-        //order Detail
-        onDetail() {
-          if (this.selected.length != 0 && this.selected[0].id != '')  {
-            //
-            history.pushState({}, document.title);
-                    window.location.replace("/order/"+this.selected[0].id);
-          } else {
-            this.$q.notify({
-              progress: true,
-              message: 'Bitte eine Zeile markieren.',
-              color: 'warning',
-              actions: [
-                { label: 'OK', color: 'black', handler: () => { /* ... */ } }
-              ]
-            })
-          }
+
+        onGoTo(iPath) {
+
+        },
+
+        onSubmit() {
+
+        },
+
+        onReset() {
+
         },
 
         //Export der Tabelle als CSV

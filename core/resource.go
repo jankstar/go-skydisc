@@ -32,6 +32,7 @@ type DataCapacityCalendar struct {
 	ServiceAreaRef string          `json:"service_area_ref" gorm:"index"`
 	ServiceArea    DataServiceArea `json:"service_area" gorm:"foreignKey:ServiceAreaRef"`
 	Date           string          `json:"date" gorm:"index"`
+	Weekday        time.Weekday    `json:"weekday"`
 	SectionRef     uint            `json:"section_ref" gorm:"index"`
 	Section        CatSection      `json:"section" gorm:"foreignKey:SectionRef"`
 	StartTime      time.Time       `json:"start_time"`
@@ -211,6 +212,7 @@ func (me *DataResource) BuildCapacityCalendarByDay(iDay time.Time, iReBuild bool
 			RecourceRef:    me.ID,
 			ServiceAreaRef: lServiceAreaMorning,
 			Date:           Time2Date(iDay),
+			Weekday:        iDay.Weekday(),
 			SectionRef:     1,
 			StartTime:      lStartMorning,
 			EndTime:        lEndMorning,
@@ -223,6 +225,7 @@ func (me *DataResource) BuildCapacityCalendarByDay(iDay time.Time, iReBuild bool
 			RecourceRef:    me.ID,
 			ServiceAreaRef: lServiceAreaAftermoon,
 			Date:           Time2Date(iDay),
+			Weekday:        iDay.Weekday(),
 			SectionRef:     2,
 			StartTime:      lStartAfternoon,
 			EndTime:        lEndAfternoon,
@@ -235,6 +238,7 @@ func (me *DataResource) BuildCapacityCalendarByDay(iDay time.Time, iReBuild bool
 			RecourceRef:    me.ID,
 			ServiceAreaRef: lServiceAreaMorning,
 			Date:           Time2Date(iDay),
+			Weekday:        iDay.Weekday(),
 			SectionRef:     3,
 			StartTime:      GetEarliestDate(lStartMorning, lStartAfternoon),
 			EndTime:        GetLatestDate(lEndMorning, lEndAfternoon),

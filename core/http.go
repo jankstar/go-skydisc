@@ -13,6 +13,7 @@ import (
 func HTTPRouter(iRouter *gin.Engine) {
 	iRouter.GET("/", HTTPindexFunc)
 	iRouter.GET("/api/:table", HTTPapiFunc)
+	iRouter.GET("/order/:id", HTTPOrderFunc)
 }
 
 //returns context index.html
@@ -76,6 +77,42 @@ func HTTPapiFunc(iCon *gin.Context) {
 		return
 	}
 
+	if lTable == "CatOrderClass" {
+		var ltCatOrderClass []CatOrderClass
+		Server.DB.Scopes(ParseQuery(lTable, lSearch)).Find(&ltCatOrderClass)
+		if ltCatOrderClass != nil {
+			iCon.JSON(http.StatusOK, gin.H{
+				"data":            ltCatOrderClass,
+				"visible_columns": []string{},
+			})
+		} else {
+			iCon.JSON(http.StatusBadRequest, gin.H{
+				"data":            "",
+				"visible_columns": "",
+			})
+		}
+
+		return
+	}
+
+	if lTable == "CatOrderStatus" {
+		var ltCatOrderStatus []CatOrderStatus
+		Server.DB.Scopes(ParseQuery(lTable, lSearch)).Find(&ltCatOrderStatus)
+		if ltCatOrderStatus != nil {
+			iCon.JSON(http.StatusOK, gin.H{
+				"data":            ltCatOrderStatus,
+				"visible_columns": []string{},
+			})
+		} else {
+			iCon.JSON(http.StatusBadRequest, gin.H{
+				"data":            "",
+				"visible_columns": "",
+			})
+		}
+
+		return
+	}
+
 	if lTable == "DataOrder" {
 		var ltDataOrder []DataOrder
 		Server.DB.Scopes(ParseQuery(lTable, lSearch)).Preload("OrderType").Preload("Project").Preload("ServiceArea").Find(&ltDataOrder)
@@ -83,7 +120,7 @@ func HTTPapiFunc(iCon *gin.Context) {
 			iCon.JSON(http.StatusOK, gin.H{
 				"data": ltDataOrder,
 				"visible_columns": []string{"id", "description",
-					"order_type_ref", "earliest_start", "latest_end", "distress", "priority",
+					"order_type_ref", "order_status_ref", "earliest_start", "latest_end", "distress", "priority",
 					"project.project_number", "project.project_name",
 					"location.country_code", "location.post_code", "location.town", "location.street", "location.street_number"},
 			})
@@ -96,4 +133,47 @@ func HTTPapiFunc(iCon *gin.Context) {
 
 		return
 	}
+
+	if lTable == "SearchCapacity" {
+		m, _ := url.ParseQuery(lSearch)
+		lError := true
+		if m["q"] != nil && m["q"][0] != "" {
+			//query: where Condition
+			if mq := strings.Split(m["q"][0], ":"); len(mq) >= 2 {
+				lID, err := strconv.Atoi(mq[1])
+				if err == nil && mq[0] == "id" && lID > 0 {
+					lOrder := GetOrderByID(uint(lID))
+					if lOrder.ID > 0 {
+						lCapacity := lOrder.SearchCapacity(0)
+						iCon.JSON(http.StatusOK, gin.H{
+							"data":            lCapacity,
+							"visible_columns": []string{"id", "recource_ref", "resource.name", "date", "weekday", "section.section", "section.name", "start_time", "end_time"},
+						})
+						lError = false
+					}
+				}
+			}
+		}
+		if lError == true {
+			iCon.JSON(http.StatusBadRequest, gin.H{
+				"data":            "",
+				"visible_columns": "",
+			})
+		}
+
+		return
+	}
+}
+
+func HTTPOrderFunc(iCon *gin.Context) {
+	var lIDStr string = iCon.Param("id")
+	lID, _ := strconv.Atoi(lIDStr)
+	//var lSearch string = iCon.Request.URL.RawQuery
+
+	lOrder := GetOrderByID(uint(lID))
+
+	iCon.HTML(http.StatusOK, "order.html", gin.H{
+		"title": "go-skaydisc",
+		"order": lOrder,
+	})
 }
