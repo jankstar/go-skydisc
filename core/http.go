@@ -19,7 +19,7 @@ func HTTPRouter(iRouter *gin.Engine) {
 //returns context index.html
 func HTTPindexFunc(iCon *gin.Context) {
 	iCon.HTML(http.StatusOK, "index.html", gin.H{
-		"title": "go-skaydisc",
+		"title": "go-skydisc",
 	})
 }
 
@@ -173,7 +173,7 @@ func HTTPOrderFunc(iCon *gin.Context) {
 	lOrder := GetOrderByID(uint(lID))
 
 	iCon.HTML(http.StatusOK, "order.html", gin.H{
-		"title": "go-skaydisc",
+		"title": "go-skydisc",
 		"order": lOrder,
 	})
 }
