@@ -87,14 +87,73 @@
 
                 <q-form @submit="onSubmit" class="q-gutter-xs" style="height: 100%;">
                   <div class="q-gutter-xs row "> 
-                    <q-input v-model="order['id']" :label="GetLabel('id')" readonly></q-input>
-                    <q-input v-model="order['description']" :label="GetLabel('description')" style="width: 300px"></q-input>
-                    <q-select v-model="order['order_type_ref']" 
-                      :options="CatOrderClass" option-value="class" option-label="name" emit-value map-options
-                      :label="GetLabel('order_type_ref')" style="width: 150px" readonly></q-select>    
-                    <q-select v-model="order['order_status_ref']" 
-                      :options="CatOrderStatus" option-value="status" option-label="name" emit-value map-options
-                      :label="GetLabel('order_status_ref')" style="width: 150px" readonly></q-select>     
+                    
+                    <q-card style="width: 100%;">
+                      <q-card-section class="row">
+                      <q-input v-model="order['id']" :label="GetLabel('id')" readonly></q-input>
+                      <q-input v-model="order['description']" :label="GetLabel('description')" style="width: 300px"></q-input>
+                      <q-select v-model="order['order_type_ref']" 
+                        :options="CatOrderClass" option-value="class" option-label="name" emit-value map-options
+                        :label="GetLabel('order_type_ref')" style="width: 150px" readonly></q-select>
+                      <q-input v-model="order['distress']" :label="GetLabel('distress')" style="width: 60px" readonly></q-input>  
+                      <q-input v-model="order['priority']" :label="GetLabel('priority')" style="width: 60px" readonly></q-input>     
+                      <q-select v-model="order['order_status_ref']" 
+                        :options="CatOrderStatus" option-value="status" option-label="name" emit-value map-options
+                        :label="GetLabel('order_status_ref')" style="width: 150px" readonly></q-select>
+                      <q-input v-model="order['CreatedAt']" :label="GetLabel('CreatedAt')" mask='datetime' readonly></q-input>  
+                      </q-card-section>                      
+                    </q-card>
+
+                    <q-card>
+                      <q-card-section class="col">
+                        <q-item-label>Kunde/Lokation</q-item-label>
+                        <q-input v-model="order['client.name']" :label="GetLabel('client')" style="width: 300px;"></q-input>
+                        <q-input v-model="order['contact_person.name']" :label="GetLabel('contact_person')" style="width: 300px;"></q-input>
+                        <q-input v-model="order['location.street']" :label="GetLabel('street')" style="width: 300px;">
+                          <q-input v-model="order['location.street_number']" :label="GetLabel('street_number')" style="width: 50px;"></q-input>
+                        </q-input>
+                        <q-input v-model="order['location.post_code']" :label="GetLabel('post_code')" style="width: 200px;">
+                          <q-input v-model="order['location.town']" :label="GetLabel('town')" style="width: 250px;"></q-input>
+                        </q-input>
+                      
+                      </q-card-section>                      
+                    </q-card>   
+                    
+                    <q-card>
+                      <q-card-section class="col">
+                        <q-item-label>Termine</q-item-label>
+                        <q-input v-model="order['earliest_start']" :label="GetLabel('earliest_start')" style="width: 150px;" mask='datetime' readonly></q-input>
+                        <q-input v-model="order['latest_end']" :label="GetLabel('latest_end')" style="width: 150px;" mask='datetime' readonly></q-input>
+                        <q-input v-model="order['duration']" :label="GetLabel('duration')" style="width: 150px;" readonly></q-input>
+                        <q-input v-model="order['project.project_name']" :label="GetLabel('project_name')" style="width: 150px;" readonly></q-input>
+                      </q-card-section>                      
+                    </q-card>                       
+                    
+                    <q-card>
+                      <q-card-section class="col">
+                        <q-item-label>ServiceArea</q-item-label>
+                        <q-input v-model="order['service_area.name']" :label="GetLabel('name')" style="width: 300px;" readonly></q-input>
+                        <q-input v-model="order['service_area.location.street']" :label="GetLabel('street')" style="width: 300px;" readonly>
+                          <q-input v-model="order['service_area.location.street_number']" :label="GetLabel('street_number')" style="width: 50px;" readonly></q-input>
+                        </q-input>
+                        <q-input v-model="order['service_area.location.post_code']" :label="GetLabel('post_code')" style="width: 200px;" readonly>
+                          <q-input v-model="order['service_area.location.town']" :label="GetLabel('town')" style="width: 250px;" readonly></q-input>
+                        </q-input>
+                      
+                      </q-card-section>                      
+                    </q-card>      
+                    
+                    <q-card>
+                      <q-card-section class="col">
+                        <q-item-label>Anforderungen</q-item-label>
+                        <q-input v-model="order['requirement.qualification.name']" :label="GetLabel('qualification')" style="width: 160px;" readonly></q-input>
+                        <q-input v-model="order['requirement.trade.name']" :label="GetLabel('trade')" style="width: 160;" readonly></q-input>
+                        <q-input v-model="order['requirement.num_of_resources']" :label="GetLabel('num_of_resources')" style="width: 100px;" readonly></q-input>
+                      
+                      </q-card-section>                      
+                    </q-card>                     
+
+
                   </div>
 
                   <div>
@@ -161,6 +220,8 @@
         //this.getDataFromApi("SearchCapacity", "?q=" + this.seach_field + ":" + this.search, "tableData");
         this.getDataFromApi("CatOrderClass", "?Q=class:%","CatOrderClass");
         this.getDataFromApi("CatOrderStatus", "?Q=status:%","CatOrderStatus");
+
+        this.order = flatten(this.order);
       },
       //
       mounted() {

@@ -7,13 +7,20 @@ import (
 	"time"
 )
 
+type TPerson struct {
+	Name     string `json:"name"`
+	Telefon1 string `json:"telefon_1"`
+	Telefon2 string `json:"telefon_2"`
+	Email    string `json:"email"`
+}
+
 type DataResource struct {
 	ID               string    `json:"id" gorm:"primaryKey"`
 	ValidFrom        time.Time `json:"valid_from" gorm:"primaryKey"`
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	ValidTo          time.Time               `json:"valid_to"`
-	Name             string                  `json:"name"`
+	Person           TPerson                 `json:"person" gorm:"embedded"`
 	HomeLocation     TLocation               `json:"home_location" gorm:"embedded"`
 	Qualification    []DataRequirement       `json:"qualification" gorm:"foreignKey:ResourceRef"`
 	CalendarRef      string                  `json:"calendar_ref"`

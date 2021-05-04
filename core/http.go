@@ -115,7 +115,13 @@ func HTTPapiFunc(iCon *gin.Context) {
 
 	if lTable == "DataOrder" {
 		var ltDataOrder []DataOrder
-		Server.DB.Scopes(ParseQuery(lTable, lSearch)).Preload("OrderType").Preload("Project").Preload("ServiceArea").Find(&ltDataOrder)
+		Server.DB.Scopes(ParseQuery(lTable, lSearch)).
+			Preload("OrderType").
+			Preload("OrderStatus").
+			Preload("Project").
+			Preload("ServiceArea").
+			Preload("Trade").
+			Preload("Qualification").Find(&ltDataOrder)
 		if ltDataOrder != nil {
 			iCon.JSON(http.StatusOK, gin.H{
 				"data": ltDataOrder,

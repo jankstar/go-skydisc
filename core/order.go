@@ -44,8 +44,8 @@ type DataOrder struct {
 	Project        DataProjekt              `json:"project" gorm:"foreignKey:ProjectRef"`
 	Duration       time.Duration            `json:"duration"`
 	Location       TLocation                `json:"location" gorm:"embedded"`
-	ContactPerson  string                   `json:"contact_person"`
-	Client         string                   `json:"client"`
+	ContactPerson  TPerson                  `json:"contact_person" gorm:"embedded;embeddedPrefix:contact_"`
+	Client         TPerson                  `json:"client" gorm:"embedded;embeddedPrefix:client_"`
 	Requirement    DataRequirement          `json:"requirement" gorm:"embedded"`
 	PredecessorRef uint                     `json:"predecessor_ref"`
 	ServiceAreaRef string                   `json:"service_area_ref"`
@@ -100,7 +100,8 @@ func loadTestDataOrder() {
 }
 
 func GetOrderByID(iID uint) (eOrder DataOrder) {
-	Server.DB.Where("id = ?", iID).First(&eOrder)
+	Server.DB.Where("id = ?",
+		iID).Preload("OrderType").Preload("OrderStatus").Preload("Project").Preload("ServiceArea").Preload("Trade").Preload("Qualification").First(&eOrder)
 	return
 }
 

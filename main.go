@@ -31,7 +31,7 @@ func main() {
 	//Change template delimiter, because {{}} is used by vue
 	goRouter.Delims("<(", ")>")
 	// goRouter.StaticFile("favicon.ico", "favicon.ico")
-	// goRouter.StaticFile("lookinlogo.png", "lookinlogo.png")
+	// goRouter.StaticFile("skydisc.png", "skydisc.png")
 	goRouter.Use(static.Serve("/vendor", static.LocalFile("./client/vendor", false)))
 	goRouter.Use(static.Serve("/icon", static.LocalFile("./client", false)))
 	goRouter.LoadHTMLGlob("client/*.html")
