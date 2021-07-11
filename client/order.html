@@ -13,7 +13,8 @@
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
     type="text/css">
-  <link href="https://cdn.jsdelivr.net/npm/quasar@1.15.11/dist/quasar.min.css" rel="stylesheet" type="text/css">
+  <!--link href="https://cdn.jsdelivr.net/npm/quasar@1.15.11/dist/quasar.min.css" rel="stylesheet" type="text/css"-->
+  <link href="/vendor/quasar.min.css" rel="stylesheet" type="text/css">
 
 <!-- Notice lang="sass" -->
 <style lang="sass">
@@ -38,7 +39,7 @@
         <q-toolbar>
           <q-btn flat dense round @click="drawerOpen = !drawerOpen" aria-label="Menu" icon="menu" ></q-btn>
 
-          <q-toolbar-title><(.title)></q-toolbar-title>
+          <q-toolbar-title>'<(.title)>'</q-toolbar-title>
 
         </q-toolbar>
       </q-header>
@@ -174,9 +175,12 @@
 
   <!-- Add the following at the end of your body tag -->
 
-  <script src="https://cdn.jsdelivr.net/npm/vue@^2.0.0/dist/vue.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.11/dist/quasar.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/quasar@1.15.11/dist/lang/de.umd.min.js"></script>
+  <!--script src="https://cdn.jsdelivr.net/npm/vue@^2.0.0/dist/vue.min.js"></script-->
+  <script src="/vendor/vue.min.js"></script>
+  <!--script src="https://cdn.jsdelivr.net/npm/quasar@1.15.10/dist/quasar.umd.min.js"></script-->  
+  <script src="/vendor/quasar.umd.min.js"></script>
+  <!--script src="https://cdn.jsdelivr.net/npm/quasar@1.15.10/dist/lang/de.umd.min.js"></script-->
+  <script src="/vendor/de.umd.min.js"></script>
   <!--script src="https://cdn.jsdelivr.net/npm/flat@5.0.2/index.min.js"></script-->
   <script src="/vendor/flat.index.min.js"></script>
   <script src="/vendor/go-skydisc.js"></script>
@@ -192,7 +196,7 @@
       //
       data: function () {
         return {
-          order: <(.order)>,
+          order: '<(.order)>',
           drawerOpen: false,
           tableData: [],
           tableTitle: "",
@@ -237,7 +241,8 @@
 
 
         onGoTo(iPath) {
-
+          history.pushState({}, document.title);
+          window.location.replace(iPath);
         },
 
         onSubmit() {

@@ -29,7 +29,7 @@ func main() {
 	goRouter.Use(gin.Recovery())
 
 	//Change template delimiter, because {{}} is used by vue
-	goRouter.Delims("<(", ")>")
+	goRouter.Delims("'<(", ")>'")
 	// goRouter.StaticFile("favicon.ico", "favicon.ico")
 	// goRouter.StaticFile("skydisc.png", "skydisc.png")
 	goRouter.Use(static.Serve("/vendor", static.LocalFile("./client/vendor", false)))
