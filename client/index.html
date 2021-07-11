@@ -9,10 +9,15 @@
 
 <head>
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
-    type="text/css">
+  <!--link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
+    type="text/css"-->
+  <link href="/vendor/iconfont/material-icons.css" rel="stylesheet" type="text/css">
   <!--link href="https://cdn.jsdelivr.net/npm/quasar@1.15.11/dist/quasar.min.css" rel="stylesheet" type="text/css"-->
   <link href="/vendor/quasar.min.css" rel="stylesheet" type="text/css">
+
+
+
+
 <!-- Notice lang="sass" -->
 <style lang="sass">
   .q-pa-xs {
@@ -50,7 +55,8 @@
             <q-item-section>
               <q-item-label>home</q-item-label>
             </q-item-section>
-          </q-item>          <q-item clickable tag="a" href="/settings">
+          </q-item>          
+          <q-item clickable tag="a" href="/settings">
             <q-item-section avatar>
               <q-icon name="settings" ></q-icon>
             </q-item-section>
@@ -79,7 +85,8 @@
             selection="single" :selected.sync="selected" virtual-scroll :rows-per-page-options="[0]">
             <template v-slot:top-left>
               <q-text>{{GetLabel(tableTitle)}}</q-text>
-              <q-btn icon-right="read_more" @click="onDetail()" flat color="primary">
+            
+              <q-btn icon-right="edit" @click="onDetail()" flat class="q-ml-sm"  color="primary">
                 <q-tooltip>Detail</q-tooltip>
               </q-btn>
             </template>
@@ -89,7 +96,7 @@
               <q-input dense debounce="300" v-model="filter" placeholder="Filter" outlined clearable flat
                 class="q-ml-sm">
                 <template v-slot:append>
-                  <q-icon name="filter_alt"></q-icon>
+                  <q-icon name="search"></q-icon>
                 </template>
               </q-input>
 
